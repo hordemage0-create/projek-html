@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Masuk — Toko PutzzPedia</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --blue: #1e6ef5; --blue-dark: #0d4fc4; --blue-light: #4d8fff;
+  --blue-soft: #e6f0ff; --yellow: #ffd93d; --green: #7ed9a8;
+  --red: #ff5b5b; --black: #000; --white: #fff; --cream: #fffbe6;
+  --shadow: 5px 5px 0 #000; --shadow-sm: 3px 3px 0 #000; --border: 3px solid #000;
+}
+body { font-family: 'Segoe UI', Tahoma, system-ui, sans-serif; background: var(--cream); color: var(--black); min-height: 100vh; display: flex; flex-direction: column; line-height: 1.5; }
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+input { font-family: inherit; }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: var(--white); border-bottom: var(--border); position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 14px; }
+.menu-btn { width: 42px; height: 42px; background: var(--white); border: var(--border); border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; transition: all 0.15s; }
+.menu-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.logo-badge { display: flex; align-items: center; background: #7ec8e3; border: var(--border); border-radius: 10px; padding: 6px 14px; box-shadow: var(--shadow-sm); font-weight: 900; font-size: 1.15rem; }
+.logo-badge span { margin-right: 4px; }
+.btn-header { padding: 9px 22px; border: var(--border); border-radius: 10px; font-weight: 800; font-size: 0.92rem; background: var(--white); box-shadow: var(--shadow-sm); transition: all 0.15s; }
+.btn-header:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+
+.bg-decor { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.bg-circle { position: absolute; border: var(--border); border-radius: 50%; opacity: 0.4; }
+.bg-circle.c1 { width: 300px; height: 300px; background: var(--blue-light); top: -80px; left: -80px; }
+.bg-circle.c2 { width: 200px; height: 200px; background: var(--yellow); bottom: -60px; right: -60px; }
+.bg-circle.c3 { width: 120px; height: 120px; background: var(--green); top: 40%; right: 10%; }
+.bg-square { position: absolute; width: 80px; height: 80px; background: var(--yellow); border: var(--border); border-radius: 14px; bottom: 15%; left: 8%; transform: rotate(-15deg); opacity: 0.6; }
+
+.login-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; position: relative; z-index: 1; }
+.login-card { width: 100%; max-width: 440px; background: var(--white); border: var(--border); border-radius: 20px; box-shadow: var(--shadow); padding: 32px 28px; position: relative; }
+.login-card .badge-top { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: var(--yellow); border: var(--border); border-radius: 99px; padding: 5px 18px; font-size: 0.75rem; font-weight: 900; box-shadow: var(--shadow-sm); white-space: nowrap; }
+.login-card h1 { font-size: 1.55rem; font-weight: 900; text-align: center; margin-bottom: 6px; margin-top: 8px; }
+.login-card .sub { text-align: center; color: #555; font-size: 0.88rem; margin-bottom: 24px; }
+
+.tabs { display: flex; background: var(--blue-soft); border: var(--border); border-radius: 12px; padding: 5px; margin-bottom: 24px; gap: 5px; }
+.tab { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-weight: 800; font-size: 0.9rem; color: #555; transition: all 0.15s; }
+.tab.active { background: var(--blue); color: var(--white); box-shadow: 2px 2px 0 #000; border: 2px solid #000; }
+
+.form-group { margin-bottom: 16px; position: relative; }
+.form-group label { display: block; font-size: 0.82rem; font-weight: 800; margin-bottom: 6px; }
+.input-wrap { position: relative; display: flex; align-items: center; }
+.input-wrap .input-icon { position: absolute; left: 14px; font-size: 1rem; pointer-events: none; color: #666; }
+.input-wrap input { width: 100%; padding: 12px 44px 12px 42px; background: var(--white); border: var(--border); border-radius: 10px; font-size: 0.92rem; font-weight: 600; color: var(--black); transition: all 0.15s; outline: none; }
+.input-wrap input:focus { box-shadow: var(--shadow-sm); transform: translate(-1px, -1px); border-color: var(--blue); }
+.input-wrap input.invalid { border-color: var(--red); background: #fff5f5; }
+.toggle-pw { position: absolute; right: 10px; background: transparent; border: none; font-size: 1rem; padding: 6px; cursor: pointer; color: #666; }
+.error { display: block; color: var(--red); font-size: 0.75rem; font-weight: 700; margin-top: 5px; min-height: 14px; }
+.form-extras { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 0.83rem; flex-wrap: wrap; gap: 10px; }
+.checkbox-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; }
+.checkbox-wrap input { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
+.forgot-link { color: var(--blue-dark); font-weight: 700; text-decoration: underline; }
+.btn-primary { width: 100%; padding: 14px; background: var(--blue); color: var(--white); border: var(--border); border-radius: 12px; font-weight: 900; font-size: 1rem; box-shadow: var(--shadow-sm); transition: all 0.15s; }
+.btn-primary:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; color: #888; font-size: 0.78rem; font-weight: 700; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 2px; background: #ddd; }
+.social-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-social { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px; background: var(--white); border: var(--border); border-radius: 10px; font-weight: 800; font-size: 0.85rem; box-shadow: var(--shadow-sm); transition: all 0.15s; }
+.btn-social:hover { transform: translate(2px,
