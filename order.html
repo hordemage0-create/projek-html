@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Order Produk — Toko PutzzPedia</title>
+<link rel="stylesheet" href="style-profile.css" />
+<style>
+  .kategori-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .kategori-btn { padding: 9px 18px; background: var(--white); border: var(--border); border-radius: 99px; font-weight: 800; font-size: 0.85rem; box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .kategori-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+  .kategori-btn.active { background: var(--blue); color: var(--white); }
+  .produk-grid-order { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .produk-item { background: var(--white); border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); padding: 16px; cursor: pointer; transition: all 0.15s; }
+  .produk-item:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+  .produk-item.selected { background: var(--blue-soft); border-color: var(--blue); }
+  .produk-item h4 { font-size: 0.9rem; margin-bottom: 6px; }
+  .produk-item .harga { font-size: 1.1rem; font-weight: 900; color: var(--blue-dark); }
+  .produk-item .kat { font-size: 0.7rem; color: #888; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .order-summary { background: var(--blue-soft); border: var(--border); border-radius: 12px; padding: 18px; margin-top: 18px; }
+  .order-summary .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.92rem; }
+  .order-summary .row.big { border-top: 2px dashed #999; margin-top: 8px; padding-top: 12px; font-size: 1.15rem; font-weight: 900; }
+  .order-summary .row.big.ok { color: var(--green-dark); }
+  .order-summary .row.big.no { color: var(--red); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a href="index.html" class="logo-badge"><span>🛒</span> TokoPutzzPedia</a>
+  </div>
+  <div class="header-right">
+    <a href="deposit.html" class="btn-header yellow">💰 Deposit</a>
+    <a href="profile.html" class="btn-header">Profil</a>
+    <button class="btn-header red" onclick="logout()">Keluar</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="profile-head" style="padding:22px">
+    <div class="avatar-big" style="width:70px;height:70px;font-size:2rem">💰</div>
+    <div class="profile-info">
+      <p style="font-size:0.82rem;opacity:0.9">Saldo Kamu</p>
+      <h1 style="font-size:1.8rem;margin:2px 0" id="saldoSekarang">Rp0</h1>
+      <a href="deposit.html" style="display:inline-block;margin-top:6px;color:#fff;text-decoration:underline;font-size:0.85rem">+ Top-up saldo</a>
+    </div>
+  </section>
+
+  <div class="panel">
+    <h2>1️⃣ Pilih Produk</h2>
+    <div class="kategori-row" id="kategoriRow">
+      <button class="kategori-btn active" data-kat="">Semua</button>
+      <button class="kategori-btn" data-kat="game">🎮 Game</button>
+      <button class="kategori-btn" data-kat="pulsa">📱 Pulsa</button>
+      <button class="kategori-btn" data-kat="data">📶 Data</button>
+      <button class="kategori-btn" data-kat="ewallet">💳 E-Wallet</button>
+      <button class="kategori-btn" data-kat="pln">⚡ PLN</button>
+    </div>
+    <div class="produk-grid-order" id="produkGrid">
+      <p style="grid-column:1/-1;text-align:center;color:#888;padding:30px">Memuat produk...</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>2️⃣ Detail Order</h2>
+    <div class="form-group">
+      <label for="target">Target / ID Tujuan</label>
+      <input type="text" id="target" placeholder="Contoh: 08123456789 atau ID game" required />
+      <small class="error" data-for="target"></small>
+      <small style="color:#666;font-size:0.78rem;display:block;margin-top:4px">Pastikan ID/nomor sudah benar. Order tidak bisa dibatalkan.</small>
+    </div>
+    <div class="order-summary">
+      <div class="row"><span>Produk</span><strong id="rProduk">—</strong></div>
+      <div class="row"><span>Harga</span><strong id="rHarga">Rp0</strong></div>
+      <div class="row"><span>Saldo Kamu</span><strong id="rSaldo">Rp0</strong></div>
+      <div class="row big" id="rTotalRow"><span>Saldo Setelah Order</span><strong id="rSisa">Rp0</strong></div>
+    </div>
+    <button class="btn-primary" id="btnOrder" style="width:100%;margin-top:18px;padding:16px">🛒 Order Sekarang</button>
+  </div>
+
+  <div class="panel">
+    <h2>📜 Riwayat Order</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID Order</th><th>Produk</th><th>Target</th><th>Total</th><th>Status</th><th>Tanggal</th></tr></thead>
+        <tbody id="orderList"><tr><td colspan="6" style="text-align:center;color:#888;padding:30px">Memuat...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">&copy; 2026 Toko PutzzPedia. Website Topup Murah & Terpercaya.</footer>
+
+<div class="modal" id="modalInfo">
+  <div class="modal-box">
+    <div class="check">✓</div>
+    <h3 id="modalTitle">Order Berhasil!</h3>
+    <p id="modalMsg">Pesanan sedang diproses.</p>
+    <button class="btn-primary" onclick="tutupModal()">OK</button>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+const token = localStorage.getItem('token') || '';
+if (!token) location.href = 'login.html';
+
+let saldo = 0;
+let selectedProduk = null;
+let produkCache = [];
+
+async function api(path, options = {}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(options.headers || {}) },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request gagal');
+  return data;
+}
+const rupiah = n => 'Rp' + (n || 0).toLocaleString('id-ID');
+
+async function loadSaldo() {
+  try {
+    const { user } = await api('/user/profile');
+    saldo = user.saldo || 0;
+    document.getElementById('saldoSekarang').textContent = rupiah(saldo);
+    document.getElementById('rSaldo').textContent = rupiah(saldo);
+    updateSummary();
+  } catch (err) {
+    if (err.message.includes('Token')) { localStorage.removeItem('token'); location.href = 'login.html'; }
+  }
+}
+
+async function loadProduk(kategori = '') {
+  const grid = document.getElementById('produkGrid');
+  try {
+    const url = kategori ? `/products?kategori=${kategori}` : '/products';
+    const { products } = await api(url);
+    produkCache = products;
+    if (!products.length) { grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888;padding:30px">Belum ada produk</p>'; return; }
+    grid.innerHTML = products.map(p => `
+      <div class="produk-item" data-id="${p.id}" onclick="pilihProduk('${p.id}')">
+        <div class="kat">${p.kategori}</div>
+        <h4>${p.nama}</h4>
+        <div class="harga">${rupiah(p.harga)}</div>
+      </div>`).join('');
+  } catch (err) {
+    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--red);padding:30px">Error: ${err.message}</p>`;
+  }
+}
+
+function pilihProduk(id) {
+  selectedProduk = produkCache.find(p => p.id === id);
+  if (!selectedProduk) return;
+  document.querySelectorAll('.produk-item').forEach(el => {
+    el.classList.toggle('selected', el.dataset.id === id);
+  });
+  updateSummary();
+}
+
+function updateSummary() {
+  if (!selectedProduk) {
+    document.getElementById('rProduk').textContent = '—';
+    document.getElementById('rHarga').textContent = rupiah(0);
+    document.getElementById('rSisa').textContent = rupiah(saldo);
+    document.getElementById('rTotalRow').classList.remove('ok', 'no');
+    return;
+  }
+  const sisa = saldo - selectedProduk.harga;
+  const row = document.getElementById('rTotalRow');
+  document.getElementById('rProduk').textContent = selectedProduk.nama;
+  document.getElementById('rHarga').textContent = rupiah(selectedProduk.harga);
+  document.getElementById('rSisa').textContent = rupiah(sisa);
+  row.classList.remove('ok', 'no');
+  if (sisa < 0) { row.classList.add('no'); document.getElementById('rSisa').textContent = '❌ Kurang ' + rupiah(-sisa); }
+  else row.classList.add('ok');
+}
+
+document.querySelectorAll('.kategori-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.kategori-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadProduk(btn.dataset.kat);
+  });
+});
+
+document.getElementById('btnOrder').addEventListener('click', async () => {
+  const errEl = document.querySelector('.error[data-for="target"]');
+  if (!selectedProduk) { errEl.textContent = 'Pilih produk dulu'; return; }
+  const target = document.getElementById('target').value.trim();
+  if (!target || target.length < 3) { errEl.textContent = 'Target minimal 3 karakter'; return; }
+  errEl.textContent = '';
+  if (saldo < selectedProduk.harga) { alert('Saldo tidak cukup. Silakan deposit dulu.'); location.href = 'deposit.html'; return; }
+  if (!confirm(`Order ${selectedProduk.nama} untuk ${target}?\n\nSaldo akan dipotong ${rupiah(selectedProduk.harga)}`)) return;
+
+  const btn = document.getElementById('btnOrder');
+  btn.disabled = true; btn.textContent = '⏳ Memproses...';
+  try {
+    const data = await api('/order/create', { method: 'POST', body: JSON.stringify({ produk_id: selectedProduk.id, target }) });
+    tampilkanModal('Order Berhasil! 🎉', `${data.order.produk_nama} untuk ${data.order.target} sedang diproses. Saldo terpotong ${rupiah(data.order.amount)}.`);
+    document.getElementById('target').value = '';
+    selectedProduk = null;
+    document.querySelectorAll('.produk-item').forEach(el => el.classList.remove('selected'));
+    await loadSaldo(); await loadRiwayat(); updateSummary();
+  } catch (err) { alert('Gagal: ' + err.message); }
+  finally { btn.disabled = false; btn.textContent = '🛒 Order Sekarang'; }
+});
+
+async function loadRiwayat() {
+  try {
+    const { orders } = await api('/user/orders');
+    const tbody = document.getElementById('orderList');
+    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:30px">Belum ada order</td></tr>'; return; }
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td><code style="font-size:0.72rem">${o.id}</code></td>
+        <td>${o.produk_nama}</td>
+        <td>${o.target}</td>
+        <td>${rupiah(o.amount)}</td>
+        <td><span class="badge-status ${o.status}">${o.status}</span></td>
+        <td>${new Date(o.created_at).toLocaleDateString('id-ID')}</td>
+      </tr>`).join('');
+  } catch (err) { console.error(err); }
+}
+
+function tampilkanModal(title, msg) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMsg').textContent = msg;
+  document.getElementById('modalInfo').classList.add('active');
+}
+function tutupModal() { document.getElementById('modalInfo').classList.remove('active'); }
+function logout() {
+  if (!confirm('Yakin keluar?')) return;
+  localStorage.removeItem('token'); localStorage.removeItem('user');
+  location.href = 'login.html';
+}
+
+loadSaldo();
+loadProduk();
+loadRiwayat();
+</script>
+
+</body>
+</html>
