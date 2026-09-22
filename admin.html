@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Panel — Toko PutzzPedia</title>
+<link rel="stylesheet" href="style-profile.css" />
+<style>
+  .admin-stat { background: var(--white); border: var(--border); border-radius: 14px; box-shadow: var(--shadow-sm); padding: 18px; }
+  .admin-stat .label { font-size: 0.75rem; font-weight: 800; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
+  .admin-stat .value { font-size: 1.4rem; font-weight: 900; margin-top: 4px; }
+  .admin-stat.green .value { color: var(--green-dark); }
+  .admin-stat.blue .value { color: var(--blue-dark); }
+  .admin-stat.yellow .value { color: #b8860b; }
+  .btn-sm { padding: 6px 12px; border: var(--border); border-radius: 8px; font-weight: 800; font-size: 0.72rem; box-shadow: 2px 2px 0 #000; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .btn-sm:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #000; }
+  .btn-sm.blue { background: var(--blue); color: #fff; }
+  .btn-sm.green { background: var(--green); color: #000; }
+  .btn-sm.red { background: var(--red); color: #fff; }
+</style>
+</head>
+<body>
+
+<div id="adminLogin" style="display:none;max-width:400px;margin:100px auto;padding:0 20px">
+  <div class="panel" style="text-align:center">
+    <h2 style="border:none;text-align:center">🔐 Admin Panel</h2>
+    <p style="color:#666;font-size:0.88rem;margin-bottom:20px">Masukkan token admin untuk melanjutkan</p>
+    <div class="form-group"><input type="password" id="adminToken" placeholder="Admin token..." /></div>
+    <button class="btn-primary" onclick="loginAdmin()" style="width:100%">Masuk</button>
+  </div>
+</div>
+
+<div id="adminView" style="display:none">
+  <header class="header">
+    <div class="header-left"><div class="logo-badge"><span>⚙️</span> Admin Panel</div></div>
+    <div class="header-right">
+      <a href="index.html" class="btn-header">Lihat Situs</a>
+      <button class="btn-header red" onclick="logoutAdmin()">Keluar</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+      <div class="admin-stat blue"><div class="label">👥 Total User</div><div class="value" id="aUsers">0</div></div>
+      <div class="admin-stat green"><div class="label">💰 Total Deposit</div><div class="value" id="aRevenue">Rp0</div></div>
+      <div class="admin-stat yellow"><div class="label">🛒 Total Order</div><div class="value" id="aSpent">Rp0</div></div>
+      <div class="admin-stat"><div class="label">💵 Saldo Beredar</div><div class="value" id="aSaldo">Rp0</div></div>
+      <div class="admin-stat"><div class="label">⏳ Pending Deposit</div><div class="value" id="aPending">0</div></div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="users">👥 Users</button>
+      <button class="tab" data-tab="deposits">💳 Deposits</button>
+      <button class="tab" data-tab="orders">🛒 Orders</button>
+    </div>
+
+    <div class="panel" id="tab-users">
+      <h2>Kelola User</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>WhatsApp</th><th>Saldo</th><th>Aksi</th></tr></thead>
+          <tbody id="userList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" id="tab-deposits" style="display:none">
+      <h2>Riwayat Deposit</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>User</th><th>Nominal</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+          <tbody id="depositList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" id="tab-orders" style="display:none">
+      <h2>Riwayat Order</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>User</th><th>Produk</th><th>Target</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="orderList"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">&copy; 2026 Toko PutzzPedia — Admin Panel</footer>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+let adminToken = localStorage.getItem('adminToken') || '';
+
+async function apiAdmin(path, options = {}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken, ...(options.headers || {}) },
+  });
+  if (res.status === 401) { logoutAdmin(); throw new Error('Unauthorized'); }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request gagal');
+  return data;
+}
+const rupiah = n => 'Rp' + (n || 0).toLocaleString('id-ID');
+
+function loginAdmin() {
+  const t = document.getElementById('adminToken').value.trim();
+  if (!t) return alert('Isi token admin');
+  adminToken = t;
+  localStorage.setItem('adminToken', adminToken);
+  loadAdmin();
+}
+
+function logoutAdmin() {
+  adminToken = '';
+  localStorage.removeItem('adminToken');
+  document.getElementById('adminView').style.display = 'none';
+  document.getElementById('adminLogin').style.display = 'block';
+}
+
+async function loadAdmin() {
+  try {
+    const stats = await apiAdmin('/admin/stats');
+    document.getElementById('aUsers').textContent = stats.totalUsers;
+    document.getElementById('aRevenue').textContent = rupiah(stats.totalRevenue);
+    document.getElementById('aSpent').textContent = rupiah(stats.totalSpent);
+    document.getElementById('aSaldo').textContent = rupiah(stats.totalSaldo);
+    document.getElementById('aPending').textContent = stats.pendingDeposits;
+
+    const { users } = await apiAdmin('/admin/users');
+    document.getElementById('userList').innerHTML = users.map(u => `
+      <tr>
+        <td>${u.id}</td><td>${u.nama}</td>
+        <td><small>${u.email}</small></td>
+        <td><small>${u.whatsapp}</small></td>
+        <td><strong>${rupiah(u.saldo)}</strong></td>
+        <td><button class="btn-sm green" onclick="editSaldo(${u.id}, '${u.nama}', ${u.saldo})">+/-</button></td>
+      </tr>`).join('');
+
+    const { deposits } = await apiAdmin('/admin/deposits');
+    document.getElementById('depositList').innerHTML = deposits.length ? deposits.map(d => `
+      <tr>
+        <td><code style="font-size:0.72rem">${d.id}</code></td>
+        <td>${d.user_nama}<br><small style="color:#888">${d.user_email}</small></td>
+        <td><strong>${rupiah(d.amount)}</strong></td>
+        <td><span class="badge-status ${d.status}">${d.status}</span></td>
+        <td>${new Date(d.created_at).toLocaleDateString('id-ID')}</td>
+        <td>${d.status === 'pending' ? `<button class="btn-sm green" onclick="konfirmasiDeposit('${d.id}')">✓ Konfirmasi</button>` : '<span style="color:#888;font-size:0.75rem">✓</span>'}</td>
+      </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:#888;padding:30px">Belum ada deposit</td></tr>';
+
+    const { orders } = await apiAdmin('/admin/orders');
+    document.getElementById('orderList').innerHTML = orders.length ? orders.map(o => `
+      <tr>
+        <td><code style="font-size:0.72rem">${o.id}</code></td>
+        <td>${o.user_nama}<br><small style="color:#888">${o.user_email}</small></td>
+        <td>${o.produk_nama}</td>
+        <td><code>${o.target}</code></td>
+        <td><strong>${rupiah(o.amount)}</strong></td>
+        <td><span class="badge-status ${o.status}">${o.status}</span></td>
+        <td>${o.status === 'paid' ? `<button class="btn-sm red" onclick="refundOrder('${o.id}')">↩ Refund</button>` : '<span style="color:#888;font-size:0.75rem">—</span>'}</td>
+      </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:#888;padding:30px">Belum ada order</td></tr>';
+
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminView').style.display = 'block';
+  } catch (err) {
+    alert('Gagal load admin: ' + err.message);
+    logoutAdmin();
+  }
+}
+
+async function editSaldo(userId, nama, saldo) {
+  const input = prompt(`Edit saldo untuk ${nama} (sekarang: ${rupiah(saldo)})\n\nPositif = tambah\nNegatif = kurangi\n\nContoh: 50000 atau -20000`);
+  if (!input) return;
+  const amount = parseInt(input);
+  if (!amount || isNaN(amount)) return alert('Nominal tidak valid');
+  const action = amount < 0 ? 'subtract' : 'add';
+  try {
+    const res = await apiAdmin(`/admin/users/${userId}/saldo`, { method: 'POST', body: JSON.stringify({ amount: Math.abs(amount), action }) });
+    alert(`Saldo diperbarui:\n${rupiah(res.saldo_before)} → ${rupiah(res.saldo_after)}`);
+    loadAdmin();
+  } catch (err) { alert('Gagal: ' + err.message); }
+}
+
+async function konfirmasiDeposit(id) {
+  if (!confirm(`Konfirmasi deposit ${id}?\n\nSaldo user akan ditambahkan.`)) return;
+  try {
+    await apiAdmin(`/admin/deposits/${id}/confirm`, { method: 'POST' });
+    alert('✅ Deposit dikonfirmasi');
+    loadAdmin();
+  } catch (err) { alert('Gagal: ' + err.message); }
+}
+
+async function refundOrder(id) {
+  if (!confirm(`Refund order ${id}?\n\nSaldo akan dikembalikan ke user.`)) return;
+  try {
+    await apiAdmin(`/admin/orders/${id}/status`, { method: 'POST', body: JSON.stringify({ status: 'refunded' }) });
+    alert('✅ Order di-refund');
+    loadAdmin();
+  } catch (err) { alert('Gagal: ' + err.message); }
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('[id^="tab-"]').forEach(p => p.style.display = 'none');
+    document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
+  });
+});
+
+if (adminToken) loadAdmin();
+else document.getElementById('adminLogin').style.display = 'block';
+</script>
+
+</body>
+</html>
