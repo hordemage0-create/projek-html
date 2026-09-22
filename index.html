@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Toko PutzzPedia — Website Topup Murah & Terpercaya</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --blue: #1e6ef5; --blue-dark: #0d4fc4; --blue-light: #4d8fff;
+  --blue-soft: #e6f0ff; --yellow: #ffd93d; --green: #7ed9a8;
+  --black: #000; --white: #fff; --cream: #fffbe6;
+  --shadow: 4px 4px 0 #000; --shadow-sm: 3px 3px 0 #000; --border: 3px solid #000;
+}
+body { font-family: 'Segoe UI', Tahoma, system-ui, sans-serif; background: var(--cream); color: var(--black); line-height: 1.5; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: var(--white); border-bottom: var(--border); position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 14px; }
+.menu-btn { width: 42px; height: 42px; background: var(--white); border: var(--border); border-radius: 10px; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; transition: all 0.15s; }
+.menu-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.logo-badge { display: flex; align-items: center; background: #7ec8e3; border: var(--border); border-radius: 10px; padding: 6px 14px; box-shadow: var(--shadow-sm); font-weight: 900; font-size: 1.15rem; }
+.logo-badge span { margin-right: 4px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.btn-header { padding: 9px 22px; border: var(--border); border-radius: 10px; font-weight: 800; font-size: 0.92rem; background: var(--white); box-shadow: var(--shadow-sm); transition: all 0.15s; }
+.btn-header:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.btn-header.yellow { background: var(--yellow); }
+
+.hero { position: relative; background: linear-gradient(180deg, #4d8fff 0%, #1e6ef5 50%, #0d4fc4 100%); padding: 40px 24px 50px; overflow: hidden; border-bottom: var(--border); min-height: 520px; }
+.ornament-persen { position: absolute; top: 30px; left: 20px; width: 90px; height: 90px; background: var(--yellow); border: var(--border); border-radius: 14px; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; transform: rotate(-12deg); z-index: 2; animation: float 3s ease-in-out infinite; }
+.hemat-text { position: absolute; top: 120px; left: 20px; z-index: 2; transform: rotate(-8deg); }
+.hemat-text .line1, .hemat-text .line2 { font-family: 'Brush Script MT', cursive; font-size: 2.2rem; color: var(--white); font-weight: 700; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000; line-height: 1; }
+.hemat-text .line2 { margin-left: 20px; }
+.hemat-text .mahkota { position: absolute; top: -35px; left: -10px; font-size: 2rem; color: var(--white); }
+.hero-content { max-width: 700px; margin: 0 auto; text-align: center; position: relative; z-index: 3; }
+.hero-title { font-size: clamp(2rem, 5.5vw, 4rem); font-weight: 900; color: var(--white); letter-spacing: 2px; text-shadow: 4px 4px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 8px 0 rgba(0,0,0,0.3); line-height: 1; margin-bottom: 20px; text-transform: uppercase; }
+.hero-subtitle { display: inline-block; background: #2a7eff; color: var(--white); padding: 10px 30px; border-radius: 99px; font-weight: 700; font-size: 1.05rem; margin-bottom: 18px; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2); }
+.hero-desc { color: var(--white); font-size: 0.95rem; max-width: 480px; margin: 0 auto 30px; }
+.fitur-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; position: relative; z-index: 3; }
+.fitur-item { background: var(--white); border: var(--border); border-radius: 12px; padding: 14px 16px; width: 130px; box-shadow: var(--shadow-sm); text-align: center; transition: all 0.15s; }
+.fitur-item:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.fitur-item .ikon { width: 40px; height: 40px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 1.2rem; color: var(--white); }
+.fitur-item h4 { font-size: 0.78rem; font-weight: 800; margin-bottom: 3px; }
+.fitur-item p { font-size: 0.65rem; color: #444; line-height: 1.3; }
+.game-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; position: relative; z-index: 3; }
+.game-icon { width: 56px; height: 56px; border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: var(--white); transition: all 0.15s; cursor: pointer; }
+.game-icon:hover { transform: translate(2px, 2px) scale(1.05); box-shadow: 1px 1px 0 #000; }
+.game-icon.ml { background: #1a3a8f; color: gold; }
+.game-icon.ff { background: #ff5722; color: #fff; }
+.game-icon.pubg { background: #f5a623; color: #000; }
+.game-icon.pln { background: #ffd93d; color: #000; }
+.game-icon.ewallet { background: #1e6ef5; color: #fff; }
+.game-icon.pulsa { background: #e91e63; color: #fff; }
+.instant-card { position: absolute; bottom: 30px; left: 24px; background: var(--blue-soft); border: var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 12px 18px; display: flex; align-items: center; gap: 12px; z-index: 4; }
+.instant-card .ikon { width: 42px; height: 42px; background: var(--blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--white); }
+.instant-card h4 { font-size: 0.85rem; font-weight: 800; color: var(--blue-dark); }
+.instant-card p { font-size: 0.72rem; color: #333; }
+.phone-mockup { position: absolute; top: 40px; right: 20px; width: 200px; z-index: 4; transform: rotate(2deg); }
+.phone-screen { background: var(--white); border: 4px solid #000; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); }
+.phone-header { background: #7ec8e3; border-bottom: 2px solid #000; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; font-weight: 800; }
+.phone-body { padding: 8px; }
+.banner-topup { background: var(--blue); border: 2px solid #000; border-radius: 8px; padding: 10px; color: var(--white); text-align: center; margin-bottom: 8px; }
+.banner-topup h5 { font-size: 0.62rem; font-weight: 900; }
+.banner-topup .big { font-size: 0.85rem; font-weight: 900; color: var(--yellow); line-height: 1; margin: 3px 0; }
+.banner-topup .badge-aman { display: inline-block; background: #22c55e; font-size: 0.5rem; padding: 2px 6px; border-radius: 99px; font-weight: 800; margin-top: 3px; }
+.phone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.phone-item { background: var(--cream); border: 2px solid #000; border-radius: 6px; padding: 6px 4px; text-align: center; font-size: 0.45rem; font-weight: 700; line-height: 1.2; }
+.phone-item .em { font-size: 0.9rem; display: block; margin-bottom: 2px; }
+.arrow-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; background: var(--yellow); border: var(--border); border-radius: 50%; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; z-index: 10; transition: all 0.15s; }
+.arrow-btn:hover { transform: translateY(-50%) translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.arrow-btn.left { left: 12px; }
+.arrow-btn.right { right: 12px; }
+.promo-section { padding: 30px 24px; }
+.promo-banner { max-width: 1100px; margin: 0 auto; background: var(--green); border: var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.promo-banner p { font-size: 0.95rem; font-weight: 700; color: #0d3d24; }
+.btn-deposit { padding: 10px 22px; background: var(--yellow); border: var(--border); border-radius: 10px; font-weight: 800; font-size: 0.88rem; box-shadow: var(--shadow-sm); white-space: nowrap; transition: all 0.15s; }
+.btn-deposit:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.search-section { padding: 20px 24px 10px; }
+.search-bar { max-width: 1100px; margin: 0 auto; background: var(--white); border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); display: flex; align-items: center; padding: 4px 6px 4px 16px; gap: 10px; }
+.search-bar input { flex: 1; border: none; outline: none; font-size: 0.95rem; padding: 10px 0; background: transparent; font-family: inherit; }
+.search-bar button { padding: 10px 22px; background: var(--blue); color: var(--white); border: var(--border); border-radius: 8px; font-weight: 800; font-size: 0.88rem; box-shadow: 2px 2px 0 #000; }
+.produk-section { padding: 30px 24px 60px; max-width: 1100px; margin: 0 auto; }
+.section-title { text-align: center; font-size: 1.6rem; font-weight: 900; margin-bottom: 30px; color: var(--blue-dark); }
+.produk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px; }
+.produk-card { background: var(--white); border: var(--border); border-radius: 14px; box-shadow: var(--shadow-sm); padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.produk-card:hover { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #000; }
+.produk-card .icon-box { width: 70px; height: 70px; margin: 0 auto 12px; border: 2px solid #000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+.produk-card h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 4px; }
+.produk-card p { font-size: 0.72rem; color: #666; margin-bottom: 8px; }
+.produk-card .harga { display: inline-block; background: var(--yellow); border: 2px solid #000; border-radius: 8px; padding: 3px 10px; font-size: 0.75rem; font-weight: 900; }
+.footer { background: var(--blue-dark); color: var(--white); padding: 30px 24px; text-align: center; border-top: var(--border); font-size: 0.85rem; }
+.wa-float { position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: #25d366; border: var(--border); border-radius: 50%; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; z-index: 200; transition: all 0.15s; animation: bounce 2s infinite; }
+.wa-float:hover { transform: scale(1.1); }
+@keyframes float { 0%, 100% { transform: rotate(-12deg) translateY(0); } 50% { transform: rotate(-12deg) translateY(-8px); } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@media (max-width: 900px) {
+  .phone-mockup { display: none; }
+  .instant-card { position: relative; bottom: auto; left: auto; margin: 20px auto 0; width: fit-content; }
+  .hemat-text { display: none; }
+  .ornament-persen { width: 60px; height: 60px; font-size: 1.6rem; top: 15px; left: 10px; }
+}
+@media (max-width: 600px) {
+  .header { padding: 10px 14px; }
+  .logo-badge { font-size: 0.95rem; padding: 5px 10px; }
+  .btn-header { padding: 7px 14px; font-size: 0.8rem; }
+  .hero { padding: 30px 16px 40px; min-height: auto; }
+  .fitur-row { gap: 8px; }
+  .fitur-item { width: 100px; padding: 10px 8px; }
+  .fitur-item h4 { font-size: 0.68rem; }
+  .fitur-item p { font-size: 0.58rem; }
+  .game-icon { width: 44px; height: 44px; font-size: 1.1rem; }
+  .promo-banner { padding: 14px 16px; }
+  .promo-banner p { font-size: 0.82rem; }
+  .arrow-btn { width: 34px; height: 34px; font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn">☰</button>
+    <div class="logo-badge"><span>🛒</span> TokoPutzzPedia</div>
+  </div>
+  <div class="header-right">
+    <a href="login.html" class="btn-header">Masuk</a>
+    <a href="login.html#register" class="btn-header yellow">Daftar</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="ornament-persen">%</div>
+  <div class="hemat-text">
+    <div class="mahkota">♛</div>
+    <div class="line1">HEMAT</div>
+    <div class="line2">SETIAP<br>HARI!</div>
+  </div>
+  <div class="hero-content">
+    <h1 class="hero-title">PUTZZPEDIA</h1>
+    <div class="hero-subtitle">Website Topup Murah & Terpercaya</div>
+    <p class="hero-desc">Solusi topup kebutuhan digital kamu, lengkap, murah, cepat, dan aman hanya di PutzzPedia!</p>
+    <div class="fitur-row">
+      <div class="fitur-item"><div class="ikon">⚡</div><h4>Harga Lebih Murah</h4><p>Pilihan terbaik untuk hemat</p></div>
+      <div class="fitur-item"><div class="ikon">🕐</div><h4>Proses Cepat</h4><p>Topup instan tanpa lama</p></div>
+      <div class="fitur-item"><div class="ikon">🛡️</div><h4>Aman & Terpercaya</h4><p>Transaksi aman dan terjamin</p></div>
+      <div class="fitur-item"><div class="ikon">📦</div><h4>Produk Lengkap</h4><p>Pulsa, paket data, e-wallet, dll</p></div>
+      <div class="fitur-item"><div class="ikon">🎧</div><h4>Layanan 24/7</h4><p>Siap membantu kapan saja</p></div>
+    </div>
+    <div class="game-row">
+      <div class="game-icon pulsa">📱</div>
+      <div class="game-icon ewallet">💳</div>
+      <div class="game-icon ml">⚔️</div>
+      <div class="game-icon ff">🔥</div>
+      <div class="game-icon pubg">🎯</div>
+      <div class="game-icon pln">⚡</div>
+    </div>
+  </div>
+  <div class="instant-card">
+    <div class="ikon">🚀</div>
+    <div><h4>Proses Instan</h4><p>Hitungan detik langsung masuk</p></div>
+  </div>
+  <div class="phone-mockup">
+    <div class="phone-screen">
+      <div class="phone-header"><div class="logo">🛒 TokoPutzzPedia</div><div>☰</div></div>
+      <div class="phone-body">
+        <div class="banner-topup">
+          <h5>TOPUP MURAH</h5>
+          <div class="big">PROSES CEPAT<br>100% AMAN</div>
+          <span class="badge-aman">TOPUP SEKARANG</span>
+        </div>
+        <div class="phone-grid">
+          <div class="phone-item"><span class="em">💳</span>Pulsa & Paket Data</div>
+          <div class="phone-item"><span class="em">💙</span>E-Wallet</div>
+          <div class="phone-item"><span class="em">⚔️</span>Mobile Legends</div>
+          <div class="phone-item"><span class="em">🔥</span>Free Fire</div>
+          <div class="phone-item"><span class="em">🎯</span>PUBG Mobile</div>
+          <div class="phone-item"><span class="em">⚡</span>PLN / Listrik</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="arrow-btn left">‹</button>
+  <button class="arrow-btn right">›</button>
+</section>
+
+<section class="promo-section">
+  <div class="promo-banner">
+    <p>💰 Punya saldo, order produk jadi lebih cepat tanpa scan QRIS berulang.</p>
+    <a href="login.html" class="btn-deposit">Masuk untuk Deposit</a>
+  </div>
+</section>
+
+<section class="search-section">
+  <div class="search-bar">
+    <span>🔍</span>
+    <input type="text" id="searchInput" placeholder="Cari produk digital..." />
+    <button>Cari</button>
+  </div>
+</section>
+
+<section class="produk-section">
+  <h2 class="section-title">🔥 Produk Populer</h2>
+  <div class="produk-grid" id="produkGrid"></div>
+</section>
+
+<footer class="footer">
+  <p style="font-weight:800;font-size:1rem;margin-bottom:6px">🛒 Toko PutzzPedia</p>
+  <p style="opacity:0.85">&copy; 2026 Toko PutzzPedia. Website Topup Murah & Terpercaya.</p>
+</footer>
+
+<a href="https://wa.me/62881011760799" target="_blank" class="wa-float" title="Hubungi kami">💬</a>
+
+<script>
+const PRODUK = [
+  { nama: 'Mobile Legends', desc: 'Diamond ML', harga: 'Mulai 5rb', icon: '⚔️', bg: '#1a3a8f' },
+  { nama: 'Free Fire', desc: 'Diamond FF', harga: 'Mulai 5rb', icon: '🔥', bg: '#ff5722' },
+  { nama: 'PUBG Mobile', desc: 'UC PUBG', harga: 'Mulai 10rb', icon: '🎯', bg: '#f5a623' },
+  { nama: 'Pulsa All Operator', desc: 'Telkomsel, Indosat, XL', harga: 'Mulai 5rb', icon: '📱', bg: '#e91e63' },
+  { nama: 'Paket Data', desc: 'Semua operator', harga: 'Mulai 10rb', icon: '📶', bg: '#3b82f6' },
+  { nama: 'E-Wallet', desc: 'GoPay, OVO, DANA', harga: 'Mulai 10rb', icon: '💳', bg: '#1e6ef5' },
+  { nama: 'PLN / Listrik', desc: 'Token listrik', harga: 'Mulai 20rb', icon: '⚡', bg: '#ffd93d' },
+  { nama: 'Garena', desc: 'Shell & Voucher', harga: 'Mulai 10rb', icon: '🎮', bg: '#22c55e' },
+];
+function renderProduk(list) {
+  const grid = document.getElementById('produkGrid');
+  if (!list.length) { grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888;padding:30px">Produk tidak ditemukan</p>'; return; }
+  grid.innerHTML = list.map(p => `
+    <div class="produk-card" onclick="pilihProduk('${p.nama}')">
+      <div class="icon-box" style="background:${p.bg};color:#fff">${p.icon}</div>
+      <h4>${p.nama}</h4><p>${p.desc}</p><span class="harga">${p.harga}</span>
+    </div>`).join('');
+}
+function pilihProduk(nama) { alert(`Kamu memilih: ${nama}\n\nSilakan login/daftar untuk melanjutkan order.`); }
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase();
+  renderProduk(PRODUK.filter(p => p.nama.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)));
+});
+document.addEventListener('DOMContentLoaded', () => renderProduk(PRODUK));
+</script>
+
+</body>
+</html>
