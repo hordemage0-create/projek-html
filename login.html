@@ -63,4 +63,304 @@ input { font-family: inherit; }
 .divider::before, .divider::after { content: ""; flex: 1; height: 2px; background: #ddd; }
 .social-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .btn-social { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px; background: var(--white); border: var(--border); border-radius: 10px; font-weight: 800; font-size: 0.85rem; box-shadow: var(--shadow-sm); transition: all 0.15s; }
-.btn-social:hover { transform: translate(2px,
+.btn-social:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.switch-text { text-align: center; margin-top: 22px; font-size: 0.88rem; color: #444; }
+.switch-text a { color: var(--blue-dark); font-weight: 900; text-decoration: underline; }
+.footer { background: var(--blue-dark); color: var(--white); padding: 18px 24px; text-align: center; border-top: var(--border); font-size: 0.82rem; position: relative; z-index: 1; }
+.strength-bar { height: 6px; background: #eee; border-radius: 99px; overflow: hidden; margin-top: 6px; border: 2px solid #000; }
+.strength-bar .fill { height: 100%; width: 0; transition: all 0.3s; background: var(--red); }
+.strength-text { font-size: 0.72rem; font-weight: 700; margin-top: 4px; color: #888; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+.modal.active { display: flex; }
+.modal-box { background: var(--white); border: var(--border); border-radius: 18px; box-shadow: var(--shadow); padding: 32px; text-align: center; max-width: 340px; width: 100%; }
+.modal-box .check { width: 64px; height: 64px; margin: 0 auto 16px; background: var(--green); border: var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: var(--shadow-sm); }
+.modal-box h3 { font-size: 1.2rem; margin-bottom: 8px; font-weight: 900; }
+.modal-box p { color: #555; font-size: 0.88rem; margin-bottom: 20px; }
+@media (max-width: 480px) {
+  .header { padding: 10px 14px; }
+  .logo-badge { font-size: 0.9rem; padding: 5px 10px; }
+  .btn-header { padding: 7px 14px; font-size: 0.8rem; }
+  .login-card { padding: 26px 20px; }
+  .login-card h1 { font-size: 1.3rem; }
+  .social-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-decor">
+  <div class="bg-circle c1"></div>
+  <div class="bg-circle c2"></div>
+  <div class="bg-circle c3"></div>
+  <div class="bg-square"></div>
+</div>
+
+<header class="header">
+  <div class="header-left">
+    <a href="index.html" class="menu-btn">←</a>
+    <a href="index.html" class="logo-badge"><span>🛒</span> TokoPutzzPedia</a>
+  </div>
+  <div class="header-right">
+    <a href="index.html" class="btn-header">Beranda</a>
+  </div>
+</header>
+
+<main class="login-wrapper">
+  <div class="login-card">
+    <div class="badge-top">🎉 Gratis & Instan</div>
+    <h1 id="cardTitle">Selamat Datang!</h1>
+    <p class="sub" id="cardSub">Masuk untuk mulai topup di PutzzPedia</p>
+
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="login">Masuk</button>
+      <button type="button" class="tab" data-tab="register">Daftar</button>
+    </div>
+
+    <form id="formLogin" novalidate>
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">📧</span>
+          <input type="email" id="loginEmail" placeholder="kamu@email.com" required />
+        </div>
+        <small class="error" data-for="loginEmail"></small>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="loginPassword" placeholder="Masukkan password" required />
+          <button type="button" class="toggle-pw" data-target="loginPassword">👁️</button>
+        </div>
+        <small class="error" data-for="loginPassword"></small>
+      </div>
+      <div class="form-extras">
+        <label class="checkbox-wrap"><input type="checkbox" id="remember" /><span>Ingat saya</span></label>
+        <a href="#" class="forgot-link">Lupa password?</a>
+      </div>
+      <button type="submit" class="btn-primary" id="btnLogin">Masuk Sekarang →</button>
+      <div class="divider">ATAU MASUK DENGAN</div>
+      <div class="social-row">
+        <button type="button" class="btn-social" onclick="loginSocial('Google')"><span>🔵</span> Google</button>
+        <button type="button" class="btn-social" onclick="loginSocial('WhatsApp')"><span>💬</span> WhatsApp</button>
+      </div>
+      <p class="switch-text">Belum punya akun? <a href="#" id="toRegister">Daftar di sini</a></p>
+    </form>
+
+    <form id="formRegister" style="display:none" novalidate>
+      <div class="form-group">
+        <label for="regName">Nama Lengkap</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" id="regName" placeholder="John Doe" required />
+        </div>
+        <small class="error" data-for="regName"></small>
+      </div>
+      <div class="form-group">
+        <label for="regEmail">Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">📧</span>
+          <input type="email" id="regEmail" placeholder="kamu@email.com" required />
+        </div>
+        <small class="error" data-for="regEmail"></small>
+      </div>
+      <div class="form-group">
+        <label for="regWa">Nomor WhatsApp</label>
+        <div class="input-wrap">
+          <span class="input-icon">📱</span>
+          <input type="tel" id="regWa" placeholder="08123456789" required />
+        </div>
+        <small class="error" data-for="regWa"></small>
+      </div>
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="regPassword" placeholder="Minimal 6 karakter" required />
+          <button type="button" class="toggle-pw" data-target="regPassword">👁️</button>
+        </div>
+        <div class="strength-bar"><div class="fill" id="strengthFill"></div></div>
+        <div class="strength-text" id="strengthText">Kekuatan password</div>
+        <small class="error" data-for="regPassword"></small>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-wrap" style="font-weight:600;font-size:0.85rem">
+          <input type="checkbox" id="regTos" required />
+          <span>Saya setuju dengan <a href="#" style="color:var(--blue-dark);font-weight:800">Syarat & Ketentuan</a></span>
+        </label>
+        <small class="error" data-for="regTos"></small>
+      </div>
+      <button type="submit" class="btn-primary" id="btnRegister">Daftar Sekarang →</button>
+      <p class="switch-text">Sudah punya akun? <a href="#" id="toLogin">Masuk di sini</a></p>
+    </form>
+  </div>
+</main>
+
+<footer class="footer">
+  &copy; 2026 Toko PutzzPedia. Website Topup Murah & Terpercaya.
+</footer>
+
+<div class="modal" id="modalSukses">
+  <div class="modal-box">
+    <div class="check">✓</div>
+    <h3 id="modalTitle">Berhasil!</h3>
+    <p id="modalMsg">Selamat datang di PutzzPedia.</p>
+    <button class="btn-primary" onclick="tutupModal()">Lanjutkan</button>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+
+/* TAB */
+const tabs = document.querySelectorAll('.tab');
+const formLogin = document.getElementById('formLogin');
+const formRegister = document.getElementById('formRegister');
+const cardTitle = document.getElementById('cardTitle');
+const cardSub = document.getElementById('cardSub');
+
+function switchTab(tabName) {
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+  if (tabName === 'login') {
+    formLogin.style.display = 'block';
+    formRegister.style.display = 'none';
+    cardTitle.textContent = 'Selamat Datang!';
+    cardSub.textContent = 'Masuk untuk mulai topup di PutzzPedia';
+  } else {
+    formLogin.style.display = 'none';
+    formRegister.style.display = 'block';
+    cardTitle.textContent = 'Buat Akun Baru';
+    cardSub.textContent = 'Daftar gratis, topup lebih cepat!';
+  }
+}
+tabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
+document.getElementById('toRegister').addEventListener('click', e => { e.preventDefault(); switchTab('register'); });
+document.getElementById('toLogin').addEventListener('click', e => { e.preventDefault(); switchTab('login'); });
+if (location.hash === '#register') switchTab('register');
+
+/* TOGGLE PASSWORD */
+document.querySelectorAll('.toggle-pw').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.getElementById(btn.dataset.target);
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+    btn.textContent = isPw ? '🙈' : '👁️';
+  });
+});
+
+/* VALIDASI */
+function setError(id, msg) {
+  const input = document.getElementById(id);
+  const err = document.querySelector(`.error[data-for="${id}"]`);
+  if (input) input.classList.toggle('invalid', !!msg);
+  if (err) err.textContent = msg || '';
+  return !msg;
+}
+const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+const isPhone = v => /^0\d{9,13}$/.test(v);
+
+/* PASSWORD STRENGTH */
+const strengthFill = document.getElementById('strengthFill');
+const strengthText = document.getElementById('strengthText');
+document.getElementById('regPassword').addEventListener('input', e => {
+  const v = e.target.value;
+  let score = 0;
+  if (v.length >= 6) score++;
+  if (v.length >= 10) score++;
+  if (/[A-Z]/.test(v)) score++;
+  if (/\d/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+  const map = [
+    { w: '0%', c: '#eee', t: 'Kekuatan password' },
+    { w: '25%', c: '#ff5b5b', t: 'Lemah' },
+    { w: '50%', c: '#f5a623', t: 'Sedang' },
+    { w: '75%', c: '#5b8def', t: 'Kuat' },
+    { w: '100%', c: '#22c55e', t: 'Sangat Kuat' },
+    { w: '100%', c: '#22c55e', t: 'Sangat Kuat' },
+  ];
+  const s = map[Math.min(score, 5)];
+  strengthFill.style.width = s.w;
+  strengthFill.style.background = s.c;
+  strengthText.textContent = s.t;
+  strengthText.style.color = s.c;
+});
+
+/* SUBMIT LOGIN */
+formLogin.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  let ok = true;
+  const email = document.getElementById('loginEmail').value.trim();
+  ok = setError('loginEmail', !isEmail(email) ? 'Email tidak valid' : '') && ok;
+  const pw = document.getElementById('loginPassword').value;
+  ok = setError('loginPassword', pw.length < 6 ? 'Minimal 6 karakter' : '') && ok;
+  if (!ok) return;
+
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true; btn.textContent = 'Memproses...';
+  try {
+    const res = await fetch(API + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pw }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    tampilkanModal('Login Berhasil! 🎉', 'Mengarahkan ke dashboard...');
+    setTimeout(() => location.href = 'profile.html', 1200);
+  } catch (err) {
+    alert('Login gagal: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Masuk Sekarang →';
+  }
+});
+
+/* SUBMIT REGISTER */
+formRegister.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  let ok = true;
+  const nama = document.getElementById('regName').value.trim();
+  ok = setError('regName', nama.length < 3 ? 'Nama minimal 3 karakter' : '') && ok;
+  const email = document.getElementById('regEmail').value.trim();
+  ok = setError('regEmail', !isEmail(email) ? 'Email tidak valid' : '') && ok;
+  const wa = document.getElementById('regWa').value.trim();
+  ok = setError('regWa', !isPhone(wa) ? 'Format: 08xxxxxxxxxx' : '') && ok;
+  const pw = document.getElementById('regPassword').value;
+  ok = setError('regPassword', pw.length < 6 ? 'Minimal 6 karakter' : '') && ok;
+  const tos = document.getElementById('regTos').checked;
+  ok = setError('regTos', !tos ? 'Kamu harus setuju S&K' : '') && ok;
+  if (!ok) return;
+
+  const btn = document.getElementById('btnRegister');
+  btn.disabled = true; btn.textContent = 'Mendaftar...';
+  try {
+    const res = await fetch(API + '/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nama, email, whatsapp: wa, password: pw }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    tampilkanModal('Akun Dibuat! 🎉', 'Selamat datang di PutzzPedia!');
+    setTimeout(() => location.href = 'profile.html', 1200);
+  } catch (err) {
+    alert('Daftar gagal: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Daftar Sekarang →';
+  }
+});
+
+function tampilkanModal(title, msg) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMsg').textContent = msg;
+  document.getElementById('modalSukses').classList.add('active');
+}
+function tutupModal() { document.getElementById('modalSukses').classList.remove('active'); }
+function loginSocial(p) { tampilkanModal('Login dengan ' + p, 'Fitur demo — OAuth belum tersedia.'); }
+</script>
+
+</body>
+</html>
