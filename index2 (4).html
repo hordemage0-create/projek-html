@@ -1,0 +1,2808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>⚡ Toko PutzzPedia — VPS & Panel Pterodactyl</title>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Pirata+One&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===================== RESET ===================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --neon-cyan: #00fff7;
+  --neon-pink: #ff00e5;
+  --neon-purple: #b026ff;
+  --neon-blue: #0099ff;
+  --neon-green: #39ff14;
+  --neon-yellow: #ffe600;
+  --neon-red: #ff073a;
+  --bg-0: #000000;
+  --bg-card: rgba(10, 10, 25, 0.75);
+  --border-neon: rgba(0, 255, 247, 0.4);
+  --text: #e8f4ff;
+  --text-dim: #7a8ba0;
+  --glow-cyan: 0 0 8px var(--neon-cyan), 0 0 20px rgba(0,255,247,0.5);
+  --glow-pink: 0 0 8px var(--neon-pink), 0 0 20px rgba(255,0,229,0.5);
+}
+
+body {
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  background: var(--bg-0);
+  color: var(--text);
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ===================== LOADING SCREEN ===================== */
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#loadingScreen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loading-logo {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: 3rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px var(--neon-cyan), 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-cyan);
+  letter-spacing: 4px;
+  animation: loadingPulse 1.5s ease-in-out infinite alternate;
+  margin-bottom: 30px;
+}
+@keyframes loadingPulse {
+  0% { opacity: 0.5; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1.02); }
+}
+.loading-bar {
+  width: 200px;
+  height: 4px;
+  background: rgba(0, 255, 247, 0.15);
+  border-radius: 99px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 255, 247, 0.3);
+}
+.loading-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+  box-shadow: 0 0 15px var(--neon-cyan);
+  animation: loadingFill 1.2s ease-in-out forwards;
+}
+@keyframes loadingFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+.loading-text {
+  margin-top: 20px;
+  font-family: 'Pirata One', serif;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  animation: loadingBlink 1.5s infinite;
+}
+@keyframes loadingBlink {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ===================== MATRIX RAIN ===================== */
+#matrixCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* ===================== HEADER ===================== */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 255, 247, 0.3);
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.menu-btn {
+  width: 42px; height: 42px;
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  border-radius: 10px;
+  box-shadow: var(--glow-cyan);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; font-weight: 900;
+  color: var(--neon-cyan);
+  transition: all 0.3s;
+}
+.menu-btn:hover {
+  background: var(--neon-cyan); color: #000;
+  box-shadow: 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+}
+.logo-badge {
+  display: flex; align-items: center;
+  background: transparent;
+  border: 2px solid var(--neon-pink);
+  border-radius: 10px;
+  padding: 6px 16px;
+  box-shadow: var(--glow-pink);
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-weight: 700; font-size: 1.4rem;
+  color: var(--neon-pink);
+  text-shadow: 0 0 8px var(--neon-pink);
+  letter-spacing: 2px;
+}
+.logo-badge span { margin-right: 6px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.header-sosmed {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid;
+}
+.header-sosmed.telegram {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+  box-shadow: 0 0 10px rgba(0, 153, 255, 0.5);
+}
+.header-sosmed.telegram:hover {
+  background: var(--neon-blue); color: #000;
+  box-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+  transform: translateY(-2px);
+}
+.header-sosmed.whatsapp {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+.header-sosmed.whatsapp:hover {
+  background: var(--neon-green); color: #000;
+  box-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+  transform: translateY(-2px);
+}
+.header-sosmed svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* ===================== HERO ===================== */
+.hero {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  overflow: hidden;
+  border-bottom: 2px solid var(--neon-cyan);
+}
+.hero-bg-image {
+  position: absolute; inset: 0;
+  background-color: #0a0a1a;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(0, 255, 247, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 0, 229, 0.15) 0%, transparent 50%);
+  z-index: 0;
+}
+.hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 247, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 247, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 75%);
+  z-index: 2;
+  pointer-events: none;
+}
+.hero::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0, 255, 247, 0.04) 2px, rgba(0, 255, 247, 0.04) 4px
+  );
+  z-index: 3;
+  pointer-events: none;
+  animation: scanlines 8s linear infinite;
+}
+@keyframes scanlines {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100px; }
+}
+
+/* FLOATING PARTICLES */
+.hero-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero-particle {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+  animation: particleFloat linear infinite;
+}
+@keyframes particleFloat {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-120vh) scale(0.3); opacity: 0; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+.hero-title {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px var(--neon-cyan),
+    0 0 20px var(--neon-cyan),
+    0 0 40px var(--neon-cyan),
+    0 0 80px var(--neon-blue);
+  line-height: 1.1;
+  margin-bottom: 20px;
+  animation: neonPulse 2s infinite alternate;
+  min-height: 1.1em;
+}
+.hero-title .cursor {
+  display: inline-block;
+  width: 4px;
+  height: 0.9em;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan);
+  animation: blink 1s steps(1) infinite;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+@keyframes neonPulse {
+  0% { text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-blue); }
+  100% { text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-cyan), 0 0 100px var(--neon-blue); }
+}
+.hero-subtitle {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--neon-pink);
+  padding: 10px 30px;
+  border: 2px solid var(--neon-pink);
+  border-radius: 99px;
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-weight: 700; font-size: 1.1rem;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  box-shadow: var(--glow-pink), inset 0 0 15px rgba(255, 0, 229, 0.2);
+  text-shadow: 0 0 8px var(--neon-pink);
+}
+.hero-desc {
+  color: var(--text-dim);
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0 auto 30px;
+  line-height: 1.7;
+}
+.hero-btns {
+  display: flex; gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-hero {
+  padding: 14px 28px;
+  background: rgba(0,0,0,0.5);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 10px;
+  font-family: 'Pirata One', 'UnifrakturCook', serif;
+  font-weight: 700; font-size: 1.05rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+  box-shadow: var(--glow-cyan);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-hero:hover {
+  background: var(--neon-cyan); color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 20px var(--neon-cyan), 0 0 50px var(--neon-cyan);
+  transform: translateY(-3px);
+}
+.btn-hero.pink {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+  text-shadow: 0 0 8px var(--neon-pink);
+  box-shadow: var(--glow-pink);
+}
+.btn-hero.pink:hover {
+  background: var(--neon-pink); color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 20px var(--neon-pink), 0 0 50px var(--neon-pink);
+}
+.btn-hero.green {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  text-shadow: 0 0 8px var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green), 0 0 20px rgba(57,255,20,0.5);
+  animation: neonFlicker 3s infinite;
+}
+.btn-hero.green:hover {
+  background: var(--neon-green); color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 20px var(--neon-green), 0 0 50px var(--neon-green);
+  animation: none;
+}
+@keyframes neonFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.5; }
+  94% { opacity: 1; }
+  96% { opacity: 0.7; }
+  97% { opacity: 1; }
+}
+
+/* ===================== SECTION ===================== */
+.section {
+  padding: 50px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-title {
+  text-align: center;
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: 2.2rem; font-weight: 900;
+  margin-bottom: 30px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: neonPulse 2s infinite alternate;
+}
+
+/* SCROLL REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===================== BENEFIT ===================== */
+.benefit-banner {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--neon-purple);
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(176, 38, 255, 0.5), inset 0 0 30px rgba(176, 38, 255, 0.1);
+  padding: 26px;
+  margin-bottom: 30px;
+}
+.benefit-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px dashed var(--neon-purple);
+}
+.benefit-header h3 {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: 1.8rem;
+  color: var(--neon-purple);
+  text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.benefit-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px 24px;
+}
+.benefit-list li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem; font-weight: 600;
+  background: rgba(0, 0, 0, 0.5);
+  border-left: 3px solid var(--neon-purple);
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+.benefit-list li:hover {
+  background: rgba(176, 38, 255, 0.15);
+  box-shadow: 0 0 15px rgba(176,38,255,0.5);
+  transform: translateX(6px);
+}
+.benefit-list li .arrow {
+  color: var(--neon-purple);
+  font-weight: 900;
+  text-shadow: 0 0 8px var(--neon-purple);
+}
+
+/* ===================== PRODUK ===================== */
+.produk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  perspective: 1200px;
+}
+.produk-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--border-neon);
+  border-radius: 14px;
+  box-shadow: 0 0 15px rgba(0, 255, 247, 0.2);
+  padding: 22px 16px;
+  text-align: center;
+  transition: transform 0.15s ease, border-color 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+.produk-card:hover {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 25px var(--neon-pink), 0 0 50px rgba(255, 0, 229, 0.4);
+}
+.produk-card .icon-box {
+  width: 64px; height: 64px;
+  margin: 0 auto 14px;
+  border: 2px solid var(--neon-cyan);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  background: rgba(0, 20, 30, 0.6);
+  box-shadow: inset 0 0 15px rgba(0, 255, 247, 0.2), 0 0 15px rgba(0, 255, 247, 0.3);
+  animation: iconFloat 3s ease-in-out infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.produk-card h4 {
+  font-family: 'Pirata One', 'UnifrakturCook', serif;
+  font-size: 1.15rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.produk-card .harga {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid var(--neon-yellow);
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-family: 'Pirata One', serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px var(--neon-yellow);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.produk-card .btn-order {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 2px solid var(--neon-green);
+  border-radius: 8px;
+  color: var(--neon-green);
+  font-family: 'Pirata One', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 6px var(--neon-green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+  transition: all 0.3s;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.produk-card .btn-order:hover {
+  background: var(--neon-green); color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+}
+.badge-hot {
+  display: inline-block;
+  border-radius: 99px;
+  padding: 3px 12px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  font-family: 'Pirata One', serif;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  background: rgba(255, 7, 58, 0.2);
+  border: 2px solid var(--neon-red);
+  color: var(--neon-red);
+  text-shadow: 0 0 8px var(--neon-red);
+  animation: badgePulse 2s infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.95); }
+}
+
+/* ===================== SOSMED ===================== */
+.sosmed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.sosmed-card {
+  display: flex; align-items: center;
+  gap: 18px;
+  padding: 22px 24px;
+  border-radius: 16px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 2px solid;
+  transition: all 0.4s;
+}
+.sosmed-card.telegram { border-color: var(--neon-blue); box-shadow: 0 0 25px rgba(0, 153, 255, 0.4); }
+.sosmed-card.telegram:hover { transform: translateY(-6px); }
+.sosmed-card.whatsapp { border-color: var(--neon-green); box-shadow: 0 0 25px rgba(57, 255, 20, 0.4); }
+.sosmed-card.whatsapp:hover { transform: translateY(-6px); }
+.sosmed-icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid;
+}
+.sosmed-card.telegram .sosmed-icon { border-color: var(--neon-blue); color: var(--neon-blue); animation: sosmedPulse 2s infinite; }
+.sosmed-card.whatsapp .sosmed-icon { border-color: var(--neon-green); color: var(--neon-green); animation: sosmedPulse 2s infinite; }
+@keyframes sosmedPulse {
+  0%, 100% { box-shadow: 0 0 0 0 currentColor; }
+  50% { box-shadow: 0 0 0 8px transparent; }
+}
+.sosmed-icon svg { width: 32px; height: 32px; fill: currentColor; }
+.sosmed-info h4 {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+.sosmed-card.telegram .sosmed-info h4 { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
+.sosmed-card.whatsapp .sosmed-info h4 { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); }
+.sosmed-info p { font-size: 0.85rem; color: var(--text-dim); font-weight: 600; margin-bottom: 6px; }
+.sosmed-info .username {
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+}
+.sosmed-card.telegram .sosmed-info .username { color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+.sosmed-card.whatsapp .sosmed-info .username { color: var(--neon-green); border: 1px solid var(--neon-green); }
+
+/* ===================== PAYMENT ===================== */
+.payment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.payment-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--neon-yellow);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 230, 0, 0.3);
+  transition: all 0.3s;
+}
+.payment-card:hover { transform: translateY(-4px); box-shadow: 0 0 30px rgba(255,230,0,0.5); }
+.payment-card .pay-icon { font-size: 2rem; margin-bottom: 8px; display: block; animation: iconFloat 3s ease-in-out infinite; }
+.payment-card h4 {
+  font-family: 'Pirata One', serif;
+  font-size: 1.2rem;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px var(--neon-yellow);
+  margin-bottom: 10px;
+}
+.payment-card .pay-number {
+  display: block;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1.5px dashed var(--neon-cyan);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  margin-bottom: 12px;
+}
+.payment-card .btn-copy {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  border-radius: 8px;
+  color: var(--neon-cyan);
+  font-family: 'Pirata One', serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.payment-card .btn-copy:hover { background: var(--neon-cyan); color: #000; }
+
+/* ===================== AUTH BUTTON ===================== */
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  border-radius: 10px;
+  font-family: 'Pirata One', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 6px var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 255, 247, 0.5);
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.auth-btn:hover {
+  background: var(--neon-cyan); color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+  transform: translateY(-2px);
+}
+.auth-btn.pink {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+  text-shadow: 0 0 6px var(--neon-pink);
+  box-shadow: 0 0 10px rgba(255, 0, 229, 0.5);
+}
+.auth-btn.pink:hover { background: var(--neon-pink); color: #000; text-shadow: none; }
+.auth-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid var(--neon-green);
+  border-radius: 99px;
+  box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.auth-user:hover { transform: translateY(-2px); }
+.auth-user .avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--neon-green);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-family: 'Pirata One', serif;
+  box-shadow: 0 0 10px var(--neon-green);
+}
+.auth-user .uname {
+  font-family: 'Pirata One', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--neon-green);
+  text-shadow: 0 0 6px var(--neon-green);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===================== AUTH PAGE ===================== */
+.page {
+  display: none;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+.page.active { display: block; animation: fadeIn 0.5s; }
+.page-wide { max-width: 800px; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.auth-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 18px;
+  box-shadow: 0 0 35px rgba(0, 255, 247, 0.5);
+  padding: 32px 26px;
+}
+.auth-card.pink {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 35px rgba(255, 0, 229, 0.5);
+}
+.auth-header { text-align: center; margin-bottom: 26px; }
+.auth-icon {
+  width: 70px; height: 70px;
+  margin: 0 auto 14px;
+  border: 2px solid var(--neon-cyan);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: rgba(0, 20, 30, 0.6);
+  box-shadow: inset 0 0 20px rgba(0, 255, 247, 0.3), 0 0 20px rgba(0, 255, 247, 0.5);
+  animation: iconFloat 3s ease-in-out infinite;
+}
+.auth-card.pink .auth-icon {
+  border-color: var(--neon-pink);
+  box-shadow: inset 0 0 20px rgba(255, 0, 229, 0.3), 0 0 20px rgba(255, 0, 229, 0.5);
+}
+.auth-header h2 {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: 2rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 12px var(--neon-cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.auth-card.pink .auth-header h2 {
+  color: var(--neon-pink);
+  text-shadow: 0 0 12px var(--neon-pink);
+}
+.auth-header p { color: var(--text-dim); font-size: 0.85rem; }
+
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 5px var(--neon-cyan);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Pirata One', serif;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.3s;
+}
+.form-group input:focus {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 15px var(--neon-pink);
+}
+.form-group input::placeholder { color: var(--text-dim); }
+.form-group .error {
+  display: block;
+  color: var(--neon-red);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 5px;
+  min-height: 14px;
+}
+.form-group input.invalid {
+  border-color: var(--neon-red);
+  box-shadow: 0 0 15px var(--neon-red);
+}
+.auth-btn-submit {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  border-radius: 12px;
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 255, 247, 0.5);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.auth-btn-submit:hover {
+  background: var(--neon-cyan);
+  color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-cyan);
+}
+.auth-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-card.pink .auth-btn-submit {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+  text-shadow: 0 0 8px var(--neon-pink);
+  box-shadow: 0 0 20px rgba(255, 0, 229, 0.5);
+}
+.auth-card.pink .auth-btn-submit:hover {
+  background: var(--neon-pink); color: #000; text-shadow: none;
+}
+.auth-switch {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 2px dashed rgba(0, 255, 247, 0.3);
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+.auth-switch a {
+  color: var(--neon-cyan);
+  font-weight: 700;
+  cursor: pointer;
+  text-shadow: 0 0 5px var(--neon-cyan);
+}
+.auth-switch a:hover { text-decoration: underline; }
+.auth-alert {
+  display: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.auth-alert.show { display: block; }
+.auth-alert.error {
+  background: rgba(255, 7, 58, 0.15);
+  border: 2px solid var(--neon-red);
+  color: var(--neon-red);
+}
+.auth-alert.success {
+  background: rgba(57, 255, 20, 0.15);
+  border: 2px solid var(--neon-green);
+  color: var(--neon-green);
+}
+
+/* ===================== DASHBOARD ===================== */
+.dashboard-welcome {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--neon-green);
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(57, 255, 20, 0.5);
+  padding: 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.dashboard-welcome .avatar-big {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--neon-green);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Pirata One', serif;
+  font-weight: 900;
+  font-size: 2rem;
+  box-shadow: 0 0 25px var(--neon-green);
+  flex-shrink: 0;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+.dashboard-welcome h3 {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: 1.6rem;
+  color: var(--neon-green);
+  text-shadow: 0 0 10px var(--neon-green);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.dashboard-welcome p { color: var(--text-dim); font-size: 0.85rem; }
+.dash-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.dash-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--border-neon);
+  border-radius: 12px;
+  transition: all 0.3s;
+  color: var(--text);
+}
+.dash-action:hover {
+  transform: translateY(-4px);
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 20px rgba(255, 0, 229, 0.5);
+}
+.dash-action .ico { font-size: 1.6rem; }
+.dash-action strong {
+  display: block;
+  font-family: 'Pirata One', serif;
+  font-size: 1rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 6px var(--neon-cyan);
+  letter-spacing: 1px;
+}
+.dash-action small { color: var(--text-dim); font-size: 0.75rem; }
+.dash-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  border: 2px solid var(--neon-red);
+  border-radius: 10px;
+  color: var(--neon-red);
+  font-family: 'Pirata One', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 6px var(--neon-red);
+  box-shadow: 0 0 15px rgba(255, 7, 58, 0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.dash-logout:hover {
+  background: var(--neon-red);
+  color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 25px var(--neon-red), 0 0 50px var(--neon-red);
+}
+
+/* ===================== FOOTER ===================== */
+.footer {
+  background: rgba(0, 0, 0, 0.9);
+  color: var(--text-dim);
+  padding: 30px 24px;
+  text-align: center;
+  border-top: 2px solid var(--neon-cyan);
+  font-size: 0.85rem;
+}
+.footer p:first-child {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-weight: 900;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+  font-size: 1.4rem;
+}
+.footer-sosmed {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 2px solid;
+}
+.footer-link.telegram { color: var(--neon-blue); border-color: var(--neon-blue); }
+.footer-link.telegram:hover { background: var(--neon-blue); color: #000; }
+.footer-link.whatsapp { color: var(--neon-green); border-color: var(--neon-green); }
+.footer-link.whatsapp:hover { background: var(--neon-green); color: #000; }
+
+/* ===================== FLOATING ===================== */
+.floating-group {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 200;
+}
+.float-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.float-btn.telegram { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+.float-btn.telegram:hover { background: var(--neon-blue); color: #000; }
+.float-btn.whatsapp { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); animation: waPulse 2s infinite; }
+.float-btn.whatsapp:hover { background: var(--neon-green); color: #000; animation: none; }
+@keyframes waPulse {
+  0%, 100% { box-shadow: 0 0 15px var(--neon-green), 0 0 0 0 rgba(57, 255, 20, 0.7); }
+  50% { box-shadow: 0 0 15px var(--neon-green), 0 0 0 12px rgba(57, 255, 20, 0); }
+}
+/* ===================== DROPDOWN SELECT ===================== */
+.modal-order-vps-box select,
+.modal-order-box select {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300fff7'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 24px;
+  padding-right: 40px;
+}
+.modal-order-vps-box select:focus,
+.modal-order-box select:focus {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 15px var(--neon-pink);
+}
+.modal-order-vps-box select option,
+.modal-order-box select option {
+  background: #0a0a1a;
+  color: var(--text);
+  padding: 10px;
+}
+.modal-order-vps-box select.invalid,
+.modal-order-box select.invalid {
+  border-color: var(--neon-red);
+  box-shadow: 0 0 15px var(--neon-red);
+}
+
+/* ===================== MODAL ORDER VPS ===================== */
+.modal-order-vps-box {
+  background: rgba(5, 5, 20, 0.98);
+  border: 2px solid var(--neon-blue);
+  border-radius: 18px;
+  box-shadow: 0 0 40px var(--neon-blue), inset 0 0 30px rgba(0, 153, 255, 0.05);
+  max-width: 540px;
+  width: 100%;
+  padding: 30px 26px;
+  position: relative;
+  animation: modalBoxIn 0.4s ease;
+}
+.modal-order-vps-box .modal-order-header .modal-icon {
+  border-color: var(--neon-blue);
+  box-shadow: inset 0 0 20px rgba(0, 153, 255, 0.3), 0 0 20px rgba(0, 153, 255, 0.5);
+}
+.modal-order-vps-box .modal-order-header h3 {
+  color: var(--neon-blue);
+  text-shadow: 0 0 12px var(--neon-blue);
+}
+.modal-order-vps-box .modal-btn-submit {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+  text-shadow: 0 0 8px var(--neon-blue);
+  box-shadow: 0 0 20px rgba(0, 153, 255, 0.5), inset 0 0 15px rgba(0, 153, 255, 0.1);
+}
+.modal-order-vps-box .modal-btn-submit:hover {
+  background: var(--neon-blue);
+  color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 30px var(--neon-blue), 0 0 60px var(--neon-blue);
+}
+.modal-info-vps {
+  background: rgba(0, 10, 25, 0.5);
+  border: 2px solid var(--neon-blue);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.modal-info-vps p {
+  font-size: 0.85rem;
+  color: var(--neon-cyan);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.modal-info-vps p:last-child { margin-bottom: 0; }
+.modal-info-vps strong { color: var(--neon-yellow); }
+
+/* ===================== MODAL ORDER PANEL ===================== */
+.modal-order-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.modal-order-overlay.open {
+  display: flex;
+  animation: modalIn 0.3s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.modal-order-box {
+  background: rgba(5, 5, 20, 0.98);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 18px;
+  box-shadow: 0 0 40px var(--neon-cyan), inset 0 0 30px rgba(0, 255, 247, 0.05);
+  max-width: 520px;
+  width: 100%;
+  padding: 30px 26px;
+  position: relative;
+  animation: modalBoxIn 0.4s ease;
+}
+@keyframes modalBoxIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-order-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 2px solid var(--neon-red);
+  border-radius: 8px;
+  color: var(--neon-red);
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-order-close:hover {
+  background: var(--neon-red);
+  color: #000;
+  box-shadow: 0 0 20px var(--neon-red);
+}
+.modal-order-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+.modal-order-header .modal-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 12px;
+  border: 2px solid var(--neon-pink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: rgba(20, 0, 15, 0.6);
+  box-shadow: inset 0 0 20px rgba(255, 0, 229, 0.3), 0 0 20px rgba(255, 0, 229, 0.5);
+  animation: iconFloat 3s ease-in-out infinite;
+}
+.modal-order-header h3 {
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-size: 1.6rem;
+  color: var(--neon-pink);
+  text-shadow: 0 0 12px var(--neon-pink);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.modal-order-header p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+.modal-order-info {
+  background: rgba(0, 20, 10, 0.4);
+  border: 2px solid var(--neon-green);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.modal-order-info p {
+  font-size: 0.85rem;
+  color: var(--neon-green);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.modal-order-info p:last-child { margin-bottom: 0; }
+.modal-order-info strong { color: var(--neon-yellow); }
+.modal-order-info .harga-highlight {
+  font-family: 'Pirata One', serif;
+  font-size: 1.3rem;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 10px var(--neon-yellow);
+}
+.modal-btn-submit {
+  width: 100%;
+  padding: 14px;
+  margin-top: 6px;
+  background: transparent;
+  border: 2px solid var(--neon-green);
+  border-radius: 12px;
+  font-family: 'UnifrakturCook', 'Pirata One', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--neon-green);
+  text-shadow: 0 0 8px var(--neon-green);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.5), inset 0 0 15px rgba(57, 255, 20, 0.1);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  animation: neonFlicker 3s infinite;
+}
+.modal-btn-submit:hover {
+  background: var(--neon-green);
+  color: #000;
+  text-shadow: none;
+  box-shadow: 0 0 30px var(--neon-green), 0 0 60px var(--neon-green);
+  animation: none;
+}
+
+@media (max-width: 600px) {
+  .modal-order-box { padding: 24px 18px; }
+  .modal-order-header h3 { font-size: 1.3rem; }
+}
+
+/* ===================== SIDEBAR MENU ===================== */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px;
+  max-width: 85vw;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(15px);
+  border-right: 2px solid var(--neon-cyan);
+  box-shadow: 5px 0 30px rgba(0, 255, 247, 0.5);
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.sidebar.open {
+  transform: translateX(0);
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  border-bottom: 2px dashed var(--neon-pink);
+}
+.sidebar-header .logo-badge {
+  font-size: 1.1rem;
+  padding: 5px 12px;
+}
+.sidebar-close {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 2px solid var(--neon-red);
+  border-radius: 8px;
+  color: var(--neon-red);
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  box-shadow: 0 0 10px rgba(255, 7, 58, 0.5);
+}
+.sidebar-close:hover {
+  background: var(--neon-red);
+  color: #000;
+  box-shadow: 0 0 20px var(--neon-red);
+}
+.sidebar-menu {
+  list-style: none;
+  padding: 16px 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+.sidebar-menu li { margin-bottom: 8px; }
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-family: 'Pirata One', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  letter-spacing: 1px;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.sidebar-menu a:hover {
+  background: rgba(0, 255, 247, 0.1);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+  transform: translateX(6px);
+}
+.sidebar-menu a .menu-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+.sidebar-footer {
+  padding: 16px 22px;
+  border-top: 2px dashed var(--neon-cyan);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sidebar-footer .auth-btn,
+.sidebar-footer .auth-user {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ===================== THEME SWITCHER ===================== */
+.theme-btn {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 10px rgba(0, 255, 247, 0.5);
+}
+.theme-btn:hover {
+  background: var(--neon-cyan);
+  color: #000;
+  transform: rotate(45deg) scale(1.1);
+}
+.theme-panel {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 0 25px rgba(0, 255, 247, 0.5);
+  z-index: 500;
+  display: none;
+  animation: panelIn 0.3s ease;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.theme-panel.open { display: block; }
+.theme-panel h4 {
+  font-family: 'Pirata One', serif;
+  font-size: 1.1rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px dashed var(--neon-cyan);
+}
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.theme-option {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+}
+.theme-option:hover { transform: scale(1.15); border-color: #fff; }
+.theme-option.active { border-color: #fff; box-shadow: 0 0 15px currentColor; }
+.theme-option.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+.theme-option[data-theme="cyan"]   { background: #00fff7; color: #00fff7; }
+.theme-option[data-theme="pink"]   { background: #ff00e5; color: #ff00e5; }
+.theme-option[data-theme="green"]  { background: #39ff14; color: #39ff14; }
+.theme-option[data-theme="purple"] { background: #b026ff; color: #b026ff; }
+.theme-option[data-theme="yellow"] { background: #ffe600; color: #ffe600; }
+.theme-option[data-theme="red"]    { background: #ff073a; color: #ff073a; }
+
+body[data-theme="pink"] {
+  --neon-cyan: #ff00e5;
+  --neon-pink: #00fff7;
+  --neon-purple: #ff66ff;
+  --neon-blue: #ff4dd2;
+  --border-neon: rgba(255, 0, 229, 0.4);
+  --glow-cyan: 0 0 8px #ff00e5, 0 0 20px rgba(255,0,229,0.5);
+}
+body[data-theme="green"] {
+  --neon-cyan: #39ff14;
+  --neon-pink: #00ff88;
+  --neon-purple: #7cff4d;
+  --neon-blue: #00ffcc;
+  --neon-yellow: #ccff00;
+  --border-neon: rgba(57, 255, 20, 0.4);
+  --glow-cyan: 0 0 8px #39ff14, 0 0 20px rgba(57,255,20,0.5);
+  --glow-pink: 0 0 8px #00ff88, 0 0 20px rgba(0,255,136,0.5);
+}
+body[data-theme="purple"] {
+  --neon-cyan: #b026ff;
+  --neon-pink: #ff00e5;
+  --neon-blue: #6a00ff;
+  --neon-yellow: #ff00ff;
+  --border-neon: rgba(176, 38, 255, 0.4);
+  --glow-cyan: 0 0 8px #b026ff, 0 0 20px rgba(176,38,255,0.5);
+}
+body[data-theme="yellow"] {
+  --neon-cyan: #ffe600;
+  --neon-pink: #ffaa00;
+  --neon-purple: #ffcc00;
+  --neon-blue: #ffd700;
+  --neon-green: #ffff00;
+  --border-neon: rgba(255, 230, 0, 0.4);
+  --glow-cyan: 0 0 8px #ffe600, 0 0 20px rgba(255,230,0,0.5);
+  --glow-pink: 0 0 8px #ffaa00, 0 0 20px rgba(255,170,0,0.5);
+}
+body[data-theme="red"] {
+  --neon-cyan: #ff073a;
+  --neon-pink: #ff4d6d;
+  --neon-purple: #ff1744;
+  --neon-blue: #ff5252;
+  --neon-green: #ff6b6b;
+  --neon-yellow: #ffb300;
+  --border-neon: rgba(255, 7, 58, 0.4);
+  --glow-cyan: 0 0 8px #ff073a, 0 0 20px rgba(255,7,58,0.5);
+  --glow-pink: 0 0 8px #ff4d6d, 0 0 20px rgba(255,77,109,0.5);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 600px) {
+  .header { padding: 10px 14px; }
+  .logo-badge { font-size: 1.1rem; padding: 5px 12px; }
+  .hero-title { font-size: 2.6rem; letter-spacing: 2px; }
+  .section-title { font-size: 1.6rem; }
+  .auth-btn { padding: 6px 10px; font-size: 0.78rem; }
+  .auth-user .uname { max-width: 70px; font-size: 0.75rem; }
+  .auth-card { padding: 24px 18px; }
+  .benefit-header h3 { font-size: 1.3rem; letter-spacing: 2px; }
+  .theme-panel { right: 10px; top: 60px; padding: 12px; }
+  .theme-option { width: 40px; height: 40px; }
+  .theme-btn { width: 34px; height: 34px; font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOADING SCREEN ===================== -->
+<div id="loadingScreen">
+  <div class="loading-logo">⚡ ℙ𝕌𝕋ℤℤℙ𝔼𝔻𝕀𝔸</div>
+  <div class="loading-bar"></div>
+  <div class="loading-text">MEMUAT SISTEM...</div>
+</div>
+
+<!-- ===================== MATRIX RAIN CANVAS ===================== -->
+<canvas id="matrixCanvas"></canvas>
+
+<!-- ===================== HEADER ===================== -->
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" onclick="openSidebar()">☰</button>
+    <div class="logo-badge"><span>⚡</span> ℙ𝕌𝕋ℤℤℙ𝔼𝔻𝕀𝔸</div>
+  </div>
+  <div class="header-right">
+    <div id="authHeaderSlot"></div>
+    <button class="theme-btn" onclick="toggleThemePanel()" title="Pilih Tema">🎨</button>
+    <a href="https://t.me/PutzzPedia" target="_blank" class="header-sosmed telegram" title="Telegram @PutzzPedia">
+      <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+    </a>
+    <a href="https://wa.me/62881011760799" target="_blank" class="header-sosmed whatsapp" title="WhatsApp 0881011760799">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+  </div>
+</header>
+
+<!-- ===================== SIDEBAR MENU ===================== -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-badge"><span>⚡</span> ℙ𝕌𝕋ℤℤℙ𝔼𝔻𝕀𝔸</div>
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <ul class="sidebar-menu">
+    <li><a onclick="goHome(); closeSidebar();"><span class="menu-icon">🏠</span> Beranda</a></li>
+    <li><a onclick="goSection('produk-vps'); closeSidebar();"><span class="menu-icon">🖥️</span> VPS Digital Ocean</a></li>
+    <li><a onclick="goSection('produk-panel'); closeSidebar();"><span class="menu-icon">💀</span> Panel Pterodactyl</a></li>
+    <li><a onclick="goSection('pembayaran'); closeSidebar();"><span class="menu-icon">💰</span> Metode Pembayaran</a></li>
+    <li><a onclick="goSection('kontak'); closeSidebar();"><span class="menu-icon">⚡</span> Kontak & Sosmed</a></li>
+    <li><a href="https://wa.me/62881011760799" target="_blank" onclick="closeSidebar();"><span class="menu-icon">💬</span> Chat WhatsApp</a></li>
+    <li><a href="https://t.me/PutzzPedia" target="_blank" onclick="closeSidebar();"><span class="menu-icon">📢</span> Channel Telegram</a></li>
+  </ul>
+  <div class="sidebar-footer" id="sidebarFooter"></div>
+</aside>
+
+<!-- ===================== HALAMAN LANDING ===================== -->
+<div id="pageLanding">
+
+  <section class="hero">
+    <div class="hero-bg-image"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+    <div class="hero-content">
+      <h1 class="hero-title"><span id="typedTitle"></span><span class="cursor"></span></h1>
+      <div class="hero-subtitle">⚡ 𝕍ℙ𝕊 & ℙ𝔸ℕ𝔼𝕃 ℙ𝕋𝔼ℝ𝕆𝔻𝔸ℂ𝕋𝕐𝕃 ⚡</div>
+      <p class="hero-desc">
+        VPS Digital Ocean High Quality — Free Install Panel, Free Theme, Free Egg Bot, Full Akses. Harga mulai Rp20.000 saja.
+      </p>
+      <div class="hero-btns">
+        <a href="#produk-vps" class="btn-hero">🖥️ Lihat VPS</a>
+        <a href="#produk-panel" class="btn-hero pink">💀 Lihat Panel</a>
+        <a href="https://wa.me/62881011760799?text=Halo%20admin%2C%20saya%20mau%20order" target="_blank" class="btn-hero green">⚡ Order Sekarang</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section reveal">
+    <div class="benefit-banner">
+      <div class="benefit-header">
+        <h3>🎁 𝔹𝔼ℕ𝔼𝔽𝕀𝕋 ℙ𝔼𝕄𝔹𝔼𝕃𝕀𝔸ℕ</h3>
+      </div>
+      <ul class="benefit-list">
+        <li><span class="arrow">▸</span> Install Panel Pterodactyl</li>
+        <li><span class="arrow">▸</span> Theme Premium</li>
+        <li><span class="arrow">▸</span> Egg Bot WhatsApp</li>
+        <li><span class="arrow">▸</span> Full Akses VPS</li>
+        <li><span class="arrow">▸</span> Free Request Domain Panel</li>
+        <li><span class="arrow">▸</span> Free Request Region, OS, Versi</li>
+        <li><span class="arrow">▸</span> Masa Aktif VPS 30 Hari Full</li>
+        <li><span class="arrow">▸</span> Garansi 10 Hari (1x Replace)</li>
+      </ul>
+      <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:2px dashed var(--neon-purple);">
+        <span style="font-family:'Pirata One',serif;font-size:1.6rem;color:var(--neon-purple);text-shadow:0 0 10px var(--neon-purple);letter-spacing:3px;">⚡ 𝔹𝕆ℕ𝕌𝕊 𝕄𝔼𝕃𝕀𝕄ℙ𝔸ℍ ⚡</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section reveal" id="produk-vps">
+    <h2 class="section-title">🖥️ 𝕍ℙ𝕊 𝔻𝕀𝔾𝕀𝕋𝔸𝕃 𝕆ℂ𝔼𝔸ℕ</h2>
+    <div class="produk-grid" id="produkGridVPS"></div>
+  </section>
+
+  <section class="section reveal" id="produk-panel">
+    <h2 class="section-title">💀 ℙ𝔸ℕ𝔼𝕃 ℙ𝕋𝔼ℝ𝕆𝔻𝔸ℂ𝕋𝕐𝕃</h2>
+    <div class="produk-grid" id="produkGridPanel"></div>
+  </section>
+
+  <section class="section reveal" id="kontak">
+    <h2 class="section-title">⚡ 𝕂𝕆ℕ𝕋𝔸𝕂 & 𝕊𝕆𝕊𝕄𝔼𝔻 ⚡</h2>
+    <div class="sosmed-grid">
+      <a href="https://t.me/PutzzPedia" target="_blank" class="sosmed-card telegram">
+        <div class="sosmed-icon"><svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg></div>
+        <div class="sosmed-info">
+          <h4>𝕋𝔼𝕃𝔼𝔾ℝ𝔸𝕄</h4>
+          <p>Channel & Chat Admin</p>
+          <span class="username">@PutzzPedia</span>
+        </div>
+      </a>
+      <a href="https://wa.me/62881011760799" target="_blank" class="sosmed-card whatsapp">
+        <div class="sosmed-icon"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div>
+        <div class="sosmed-info">
+          <h4>𝕎ℍ𝔸𝕋𝕊𝔸ℙℙ</h4>
+          <p>Order & Konsultasi</p>
+          <span class="username">0881011760799</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="section reveal" id="pembayaran">
+    <h2 class="section-title">💰 𝕄𝔼𝕋𝕆𝔻𝔼 ℙ𝔼𝕄𝔹𝔸𝕐𝔸ℝ𝔸ℕ 💰</h2>
+    <div class="payment-grid">
+      <div class="payment-card">
+        <span class="pay-icon">💳</span>
+        <h4>𝔻𝔸ℕ𝔸</h4>
+        <span class="pay-number">0881011760799</span>
+        <button class="btn-copy" onclick="copyToClipboard('0881011760799', this)">📋 Copy Nomor</button>
+      </div>
+      <div class="payment-card">
+        <span class="pay-icon">💰</span>
+        <h4>𝕆𝕍𝕆</h4>
+        <span class="pay-number">0881011760799</span>
+        <button class="btn-copy" onclick="copyToClipboard('0881011760799', this)">📋 Copy Nomor</button>
+      </div>
+      <div class="payment-card">
+        <span class="pay-icon">📱</span>
+        <h4>𝔾𝕆ℙ𝔸𝕐</h4>
+        <span class="pay-number">0881011760799</span>
+        <button class="btn-copy" onclick="copyToClipboard('0881011760799', this)">📋 Copy Nomor</button>
+      </div>
+      <div class="payment-card">
+        <span class="pay-icon">🏦</span>
+        <h4>𝔹ℂ𝔸</h4>
+        <span class="pay-number">1234567890</span>
+        <button class="btn-copy" onclick="copyToClipboard('1234567890', this)">📋 Copy Rekening</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===================== HALAMAN LOGIN ===================== -->
+<div class="page" id="pageLogin">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-icon">🔐</div>
+      <h2>𝕃𝕆𝔾𝕀ℕ</h2>
+      <p>Masuk ke akun PutzzPedia kamu</p>
+    </div>
+    <div class="auth-alert" id="loginAlert"></div>
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="kamu@email.com" required />
+        <small class="error" data-for="loginEmail"></small>
+      </div>
+      <div class="form-group">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" required />
+        <small class="error" data-for="loginPass"></small>
+      </div>
+      <button type="submit" class="auth-btn-submit">⚡ 𝕄𝔸𝕊𝕌𝕂 ⚡</button>
+    </form>
+    <div class="auth-switch">
+      Belum punya akun? <a onclick="showPage('register')">Daftar di sini</a>
+    </div>
+    <div class="auth-switch" style="border-top:none;padding-top:8px;margin-top:8px;">
+      <a onclick="goHome()">← Kembali ke Beranda</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HALAMAN DAFTAR ===================== -->
+<div class="page" id="pageRegister">
+  <div class="auth-card pink">
+    <div class="auth-header">
+      <div class="auth-icon">✨</div>
+      <h2>𝔻𝔸𝔽𝕋𝔸ℝ</h2>
+      <p>Buat akun baru PutzzPedia</p>
+    </div>
+    <div class="auth-alert" id="registerAlert"></div>
+    <form id="registerForm" novalidate>
+      <div class="form-group">
+        <label for="regNama">Nama Lengkap</label>
+        <input type="text" id="regNama" placeholder="Contoh: John Doe" required />
+        <small class="error" data-for="regNama"></small>
+      </div>
+      <div class="form-group">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" placeholder="kamu@email.com" required />
+        <small class="error" data-for="regEmail"></small>
+      </div>
+      <div class="form-group">
+        <label for="regPass">Password</label>
+        <input type="password" id="regPass" placeholder="Min. 6 karakter" required />
+        <small class="error" data-for="regPass"></small>
+      </div>
+      <div class="form-group">
+        <label for="regPass2">Konfirmasi Password</label>
+        <input type="password" id="regPass2" placeholder="Ulangi password" required />
+        <small class="error" data-for="regPass2"></small>
+      </div>
+      <button type="submit" class="auth-btn-submit">✨ 𝔻𝔸𝔽𝕋𝔸ℝ ✨</button>
+    </form>
+    <div class="auth-switch">
+      Sudah punya akun? <a onclick="showPage('login')">Login di sini</a>
+    </div>
+    <div class="auth-switch" style="border-top:none;padding-top:8px;margin-top:8px;">
+      <a onclick="goHome()">← Kembali ke Beranda</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HALAMAN DASHBOARD ===================== -->
+<div class="page page-wide" id="pageDashboard">
+  <div class="dashboard-welcome">
+    <div class="avatar-big" id="dashAvatar">U</div>
+    <div>
+      <h3 id="dashNama">User</h3>
+      <p id="dashEmail">user@email.com</p>
+    </div>
+  </div>
+  <div class="dash-actions">
+    <a href="https://wa.me/62881011760799" target="_blank" class="dash-action">
+      <span class="ico">💬</span>
+      <div><strong>Chat Admin</strong><small>Bantuan & konsultasi</small></div>
+    </a>
+    <a href="https://t.me/PutzzPedia" target="_blank" class="dash-action">
+      <span class="ico">📢</span>
+      <div><strong>Channel Telegram</strong><small>Update & promo</small></div>
+    </a>
+  </div>
+  <button class="dash-logout" onclick="handleLogout()">🚪 𝕃𝕆𝔾𝕆𝕌𝕋</button>
+</div>
+<!-- ===================== MODAL ORDER VPS ===================== -->
+<div class="modal-order-overlay" id="modalOrderVPS">
+  <div class="modal-order-vps-box">
+    <button class="modal-order-close" onclick="closeOrderVPS()">✕</button>
+
+    <div class="modal-order-header">
+      <div class="modal-icon">🖥️</div>
+      <h3>𝕆ℝ𝔻𝔼ℝ 𝕍ℙ𝕊</h3>
+      <p>Lengkapi data VPS kamu</p>
+    </div>
+
+    <div class="modal-info-vps" id="modalOrderVPSInfo"></div>
+
+    <form id="formOrderVPS" novalidate>
+      <div class="form-group">
+        <label for="vpsUsername">Username VPS</label>
+        <input type="text" id="vpsUsername" placeholder="Contoh: putzzpedia" required />
+        <small class="error" data-for="vpsUsername"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="vpsRam">RAM VPS</label>
+        <input type="text" id="vpsRam" placeholder="1 RAM / 1 CORE" readonly style="opacity:0.85;cursor:not-allowed;color:var(--neon-cyan);font-weight:900;" />
+      </div>
+
+          <div class="form-group">
+        <label for="vpsDomain">Request Domain Panel</label>
+        <select id="vpsDomain" required>
+          <option value="">— Pilih Domain —</option>
+          <option value="pterocloud.my.id">pterocloud.my.id</option>
+          <option value="pteroq.biz.id">pteroq.biz.id</option>
+          <option value="smasnug.web.id">smasnug.web.id</option>
+          <option value="surnxuesk.biz.id">surnxuesk.biz.id</option>
+          <option value="pteroqdactyl.my.id">pteroqdactyl.my.id</option>
+          <option value="keselekbijiwowo.web.id">keselekbijiwowo.web.id</option>
+          <option value="rzhosts.my.id">rzhosts.my.id</option>
+          <option value="pteroq.xyz">pteroq.xyz</option>
+          <option value="duckdns.top">duckdns.top</option>
+          <option value="sano.biz.id">sano.biz.id</option>
+        </select>
+        <small class="error" data-for="vpsDomain"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="vpsHarga">Harga VPS</label>
+        <input type="text" id="vpsHarga" placeholder="Rp0" readonly style="opacity:0.85;cursor:not-allowed;color:var(--neon-yellow);font-weight:900;" />
+      </div>
+
+      <div class="form-group">
+        <label for="vpsWa">Nomor WhatsApp Kamu</label>
+        <input type="tel" id="vpsWa" placeholder="08xxxxxxxxxx" required />
+        <small class="error" data-for="vpsWa"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="vpsCatatan">Catatan (opsional)</label>
+        <textarea id="vpsCatatan" placeholder="Contoh: butuh cepat, minta bonus, dll"
+                  style="width:100%;padding:12px 14px;background:rgba(0,0,0,0.7);border:2px solid var(--neon-cyan);border-radius:8px;color:var(--text);font-family:inherit;font-weight:600;outline:none;resize:vertical;min-height:70px;"></textarea>
+      </div>
+
+      <button type="submit" class="modal-btn-submit">⚡ 𝕃𝔸ℕ𝕁𝕌𝕋 𝕆ℝ𝔻𝔼ℝ ⚡</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL ORDER PANEL ===================== -->
+<div class="modal-order-overlay" id="modalOrderPanel">
+  <div class="modal-order-box">
+    <button class="modal-order-close" onclick="closeOrderPanel()">✕</button>
+
+    <div class="modal-order-header">
+      <div class="modal-icon">💀</div>
+      <h3>𝕆ℝ𝔻𝔼ℝ ℙ𝔸ℕ𝔼𝕃</h3>
+      <p>Lengkapi data panel kamu</p>
+    </div>
+
+    <div class="modal-order-info" id="modalOrderInfo"></div>
+
+    <form id="formOrderPanel" novalidate>
+      <div class="form-group">
+        <label for="panelUsername">Username Panel</label>
+        <input type="text" id="panelUsername" placeholder="Contoh: putzzpedia" required />
+        <small class="error" data-for="panelUsername"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="panelRam">RAM Panel</label>
+        <input type="text" id="panelRam" placeholder="Contoh: 1GB" readonly style="opacity:0.85;cursor:not-allowed;" />
+      </div>
+
+      <div class="form-group">
+        <label for="panelHarga">Harga Panel</label>
+        <input type="text" id="panelHarga" placeholder="Rp0" readonly style="opacity:0.85;cursor:not-allowed;color:var(--neon-yellow);font-weight:900;" />
+      </div>
+
+      <div class="form-group">
+        <label for="panelWa">Nomor WhatsApp Kamu</label>
+        <input type="tel" id="panelWa" placeholder="08xxxxxxxxxx" required />
+        <small class="error" data-for="panelWa"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="panelCatatan">Catatan (opsional)</label>
+        <textarea id="panelCatatan" placeholder="Contoh: butuh cepat, minta bonus, dll"
+                  style="width:100%;padding:12px 14px;background:rgba(0,0,0,0.7);border:2px solid var(--neon-cyan);border-radius:8px;color:var(--text);font-family:inherit;font-weight:600;outline:none;resize:vertical;min-height:70px;"></textarea>
+      </div>
+
+      <button type="submit" class="modal-btn-submit">⚡ 𝕃𝔸ℕ𝕁𝕌𝕋 𝕆ℝ𝔻𝔼ℝ ⚡</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== THEME PANEL ===================== -->
+<div class="theme-panel" id="themePanel">
+  <h4>🎨 ℙ𝕀𝕃𝕀ℍ 𝕋𝔼𝕄𝔸</h4>
+  <div class="theme-options">
+    <button class="theme-option active" data-theme="cyan"   onclick="setTheme('cyan', this)"   title="Cyan"></button>
+    <button class="theme-option"        data-theme="pink"   onclick="setTheme('pink', this)"   title="Pink"></button>
+    <button class="theme-option"        data-theme="green"  onclick="setTheme('green', this)"  title="Green"></button>
+    <button class="theme-option"        data-theme="purple" onclick="setTheme('purple', this)" title="Purple"></button>
+    <button class="theme-option"        data-theme="yellow" onclick="setTheme('yellow', this)" title="Yellow"></button>
+    <button class="theme-option"        data-theme="red"    onclick="setTheme('red', this)"    title="Red"></button>
+  </div>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <p>⚡ 𝕋𝕆𝕂𝕆 ℙ𝕌𝕋ℤℤℙ𝔼𝔻𝕀𝔸 ⚡</p>
+  <p>&copy; 2026 Toko PutzzPedia. VPS & Panel Pterodactyl Terpercaya.</p>
+  <div class="footer-sosmed">
+    <a href="https://t.me/PutzzPedia" target="_blank" class="footer-link telegram">📢 Telegram</a>
+    <a href="https://wa.me/62881011760799" target="_blank" class="footer-link whatsapp">💬 WhatsApp</a>
+  </div>
+</footer>
+
+<!-- ===================== FLOATING ===================== -->
+<div class="floating-group">
+  <a href="https://t.me/PutzzPedia" target="_blank" class="float-btn telegram">📢</a>
+  <a href="https://wa.me/62881011760799" target="_blank" class="float-btn whatsapp">💬</a>
+</div>
+
+<!-- ===================== FIREBASE SDK v12.19.0 ===================== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAuaHZbh0ohvivhtRCO_xIhk_hhj94Jgl4",
+    authDomain: "toko-putzzpedia.firebaseapp.com",
+    projectId: "toko-putzzpedia",
+    storageBucket: "toko-putzzpedia.firebasestorage.app",
+    messagingSenderId: "281478806980",
+    appId: "1:281478806980:web:581f8e718829e874dd3891",
+    measurementId: "G-MEK90XNV0N"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+
+  window.firebaseAuth = auth;
+  window.fbCreateUser = createUserWithEmailAndPassword;
+  window.fbSignIn = signInWithEmailAndPassword;
+  window.fbSignOut = signOut;
+  window.fbOnAuthStateChanged = onAuthStateChanged;
+  window.fbUpdateProfile = updateProfile;
+
+  console.log('✅ Firebase initialized');
+</script>
+
+<!-- ===================== SCRIPT UTAMA + ANIMASI ===================== -->
+<script>
+const WA_NUMBER = '62881011760799';
+
+/* =========================================================
+   DATA PRODUK
+   ========================================================= */
+const PRODUK_VPS = [
+  { id: 'vps-1c1',   nama: '1 RAM / 1 CORE',   harga: 20000,  icon: '🖥️' },
+  { id: 'vps-1c2',   nama: '2 RAM / 1 CORE',   harga: 25000,  icon: '🖥️' },
+  { id: 'vps-2c2',   nama: '2 RAM / 2 CORE',   harga: 30000,  icon: '🖥️' },
+  { id: 'vps-2c4',   nama: '4 RAM / 2 CORE',   harga: 40000,  icon: '🖥️' },
+  { id: 'vps-4c8',   nama: '8 RAM / 4 CORE',   harga: 50000,  icon: '🖥️' },
+  { id: 'vps-4c16',  nama: '16 RAM / 4 CORE',  harga: 60000,  icon: '🖥️' },
+  { id: 'vps-8c16',  nama: '16 RAM / 8 CORE',  harga: 80000,  icon: '🖥️' },
+  { id: 'vps-8c32',  nama: '32 RAM / 8 CORE',  harga: 100000, icon: '🖥️' },
+  { id: 'vps-8c128', nama: '128 RAM / 8 CORE', harga: 120000, icon: '🖥️' },
+];
+const PRODUK_PANEL = [
+  { id: 'p1gb',  nama: '1GB',         harga: 500,  icon: '🌐' },
+  { id: 'p2gb',  nama: '2GB',         harga: 1000, icon: '🌐' },
+  { id: 'p3gb',  nama: '3GB',         harga: 1500, icon: '🌐' },
+  { id: 'p4gb',  nama: '4GB',         harga: 2000, icon: '🌐' },
+  { id: 'p5gb',  nama: '5GB',         harga: 2500, icon: '🌐' },
+  { id: 'p6gb',  nama: '6GB',         harga: 3000, icon: '🌐' },
+  { id: 'p7gb',  nama: '7GB',         harga: 3500, icon: '🌐' },
+  { id: 'p8gb',  nama: '8GB',         harga: 4000, icon: '🌐' },
+  { id: 'p9gb',  nama: '9GB',         harga: 4500, icon: '🌐' },
+  { id: 'p10gb', nama: '10GB',        harga: 5000, icon: '🌐' },
+  { id: 'unli',  nama: 'UNLI',        harga: 5500, icon: '♾️' },
+  { id: 'panel', nama: 'ADMIN PANEL', harga: 7000, icon: '⚙️' },
+];
+const SEMUA_PRODUK = [...PRODUK_VPS, ...PRODUK_PANEL];
+
+/* =========================================================
+   HELPER
+   ========================================================= */
+function formatHarga(n) { return 'Rp' + n.toLocaleString('id-ID'); }
+function getCurrentUser() { return window.firebaseAuth ? window.firebaseAuth.currentUser : null; }
+function isLoggedIn() { return !!getCurrentUser(); }
+function getUserInitial(user) { return (user.displayName || user.email || 'U').charAt(0).toUpperCase(); }
+function getUserDisplayName(user) { return user.displayName || (user.email ? user.email.split('@')[0] : 'User'); }
+
+/* =========================================================
+   ANIMASI 1: LOADING SCREEN
+   ========================================================= */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const ls = document.getElementById('loadingScreen');
+    if (ls) ls.classList.add('hidden');
+  }, 1200);
+});
+
+/* =========================================================
+   ANIMASI 2: TYPING EFFECT
+   ========================================================= */
+function startTypingEffect() {
+  const target = document.getElementById('typedTitle');
+  if (!target) return;
+  const text = 'ℙ𝕌𝕋ℤℤℙ𝔼𝔻𝕀𝔸';
+  const chars = [...text];
+  let i = 0;
+  target.textContent = '';
+  const interval = setInterval(() => {
+    target.textContent += chars[i];
+    i++;
+    if (i >= chars.length) clearInterval(interval);
+  }, 180);
+}
+
+/* =========================================================
+   ANIMASI 3: FLOATING PARTICLES
+   ========================================================= */
+function startFloatingParticles() {
+  const container = document.getElementById('heroParticles');
+  if (!container) return;
+  const colors = ['#00fff7', '#ff00e5', '#b026ff', '#39ff14', '#ffe600'];
+  const count = 25;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'hero-particle';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = Math.random() * 100 + '%';
+    p.style.bottom = '-' + (Math.random() * 20 + 5) + 'px';
+    p.style.width = (Math.random() * 4 + 2) + 'px';
+    p.style.height = p.style.width;
+    p.style.background = color;
+    p.style.boxShadow = `0 0 10px ${color}, 0 0 20px ${color}`;
+    p.style.animationDuration = (Math.random() * 8 + 6) + 's';
+    p.style.animationDelay = (Math.random() * 6) + 's';
+    container.appendChild(p);
+  }
+}
+
+/* =========================================================
+   ANIMASI 4: MATRIX RAIN
+   ========================================================= */
+function startMatrixRain() {
+  const canvas = document.getElementById('matrixCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const chars = 'アカサタナハマヤラワ0123456789ᚱᚢᚦᚨᚱᚲ';
+  const fontSize = 16;
+  const columns = () => Math.floor(canvas.width / fontSize);
+  const drops = [];
+  for (let i = 0; i < columns(); i++) drops[i] = 1;
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00fff7';
+    ctx.font = fontSize + 'px monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  setInterval(draw, 50);
+}
+
+/* =========================================================
+   ANIMASI 5: SCROLL REVEAL
+   ========================================================= */
+function startScrollReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+/* =========================================================
+   ANIMASI 6: 3D TILT KARTU PRODUK
+   ========================================================= */
+function attach3DTilt() {
+  document.querySelectorAll('.produk-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const rx = ((y - cy) / cy) * -10;
+      const ry = ((x - cx) / cx) * 10;
+      card.style.transform = `translateY(-6px) perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
+
+/* =========================================================
+   ANIMASI 7: COUNTER (Harga)
+   ========================================================= */
+function animateCounter(el, target, duration = 1200) {
+  const start = 0;
+  const startTime = performance.now();
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const value = Math.floor(start + (target - start) * progress);
+    el.textContent = 'Rp' + value.toLocaleString('id-ID');
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+/* =========================================================
+   RENDER PRODUK
+   ========================================================= */
+function renderGrid(gridId, list) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  if (!list.length) {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#7a8ba0;padding:30px;">Produk tidak ditemukan...</p>';
+    return;
+  }
+  grid.innerHTML = list.map(p => `
+    <div class="produk-card">
+      <div class="icon-box">${p.icon}</div>
+      <h4>${p.nama}</h4>
+      <span class="harga" data-harga="${p.harga}">Rp0</span>
+      <span class="badge-hot">🔥 HOT</span>
+      <button class="btn-order" onclick="orderProduk('${p.id}')">⚡ 𝕆ℝ𝔻𝔼ℝ 𝕊𝔼𝕂𝔸ℝ𝔸ℕ𝔾</button>
+    </div>
+  `).join('');
+}
+
+function renderProduk() {
+  renderGrid('produkGridVPS', PRODUK_VPS);
+  renderGrid('produkGridPanel', PRODUK_PANEL);
+  setTimeout(() => {
+    attach3DTilt();
+    animateAllCounters();
+  }, 100);
+}
+
+function animateAllCounters() {
+  document.querySelectorAll('.harga[data-harga]').forEach(el => {
+    const target = parseInt(el.dataset.harga);
+    animateCounter(el, target);
+  });
+}
+
+/* =========================================================
+   ORDER PRODUK
+   ========================================================= */
+function orderProduk(id) {
+  const p = SEMUA_PRODUK.find(x => x.id === id);
+  if (!p) return;
+
+  // Kalau produk VPS → buka modal form order VPS
+  if (id.startsWith('vps-')) {
+    openOrderVPS(p);
+    return;
+  }
+
+  // Kalau produk PANEL → buka modal form order panel
+  openOrderPanel(p);
+}
+
+/* =========================================================
+   MODAL ORDER VPS
+   ========================================================= */
+let selectedVPSProduct = null;
+
+function openOrderVPS(product) {
+  selectedVPSProduct = product;
+  const modal = document.getElementById('modalOrderVPS');
+  if (!modal) return;
+
+  const infoEl = document.getElementById('modalOrderVPSInfo');
+  const ramEl = document.getElementById('vpsRam');
+  const hargaEl = document.getElementById('vpsHarga');
+  const userEl = document.getElementById('vpsUsername');
+  const domEl = document.getElementById('vpsDomain');
+  const waEl = document.getElementById('vpsWa');
+  const catEl = document.getElementById('vpsCatatan');
+
+  if (infoEl) {
+    infoEl.innerHTML = `
+      <p>📦 <strong>Paket:</strong> ${product.nama}</p>
+      <p>💾 <strong>RAM VPS:</strong> ${product.nama}</p>
+      <p>💰 <strong>Harga:</strong> <span style="font-family:'Pirata One',serif;font-size:1.3rem;color:var(--neon-yellow);text-shadow:0 0 10px var(--neon-yellow);">${formatHarga(product.harga)}</span></p>
+      <p>🎁 <strong>Free:</strong> Panel, Theme, Egg Bot, Full Akses</p>
+    `;
+  }
+  if (ramEl) ramEl.value = product.nama;
+  if (hargaEl) hargaEl.value = formatHarga(product.harga);
+
+    if (userEl) userEl.value = '';
+  if (domEl) domEl.value = '';      // reset dropdown ke placeholder
+  if (waEl) waEl.value = '';
+  if (catEl) catEl.value = '';
+  document.querySelectorAll('#formOrderVPS .error').forEach(e => e.textContent = '');
+  document.querySelectorAll('#formOrderVPS input, #formOrderVPS textarea').forEach(el => el.classList.remove('invalid'));
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderVPS() {
+  const modal = document.getElementById('modalOrderVPS');
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+  selectedVPSProduct = null;
+}
+
+/* =========================================================
+   SUBMIT FORM ORDER VPS
+   ========================================================= */
+const formOrderVPS = document.getElementById('formOrderVPS');
+if (formOrderVPS) {
+  formOrderVPS.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!selectedVPSProduct) return;
+
+    let ok = true;
+
+    const usernameEl = document.getElementById('vpsUsername');
+    const domainEl = document.getElementById('vpsDomain');
+    const waEl = document.getElementById('vpsWa');
+    const catEl = document.getElementById('vpsCatatan');
+    if (!usernameEl || !domainEl || !waEl) return;
+
+    const username = usernameEl.value.trim();
+    const domain = domainEl.value.trim();
+    const wa = waEl.value.trim();
+    const catatan = catEl ? catEl.value.trim() : '';
+
+    // Validasi username VPS
+    ok = setAuthError('vpsUsername', !/^[a-z0-9_]{3,20}$/.test(username.toLowerCase())
+      ? 'Username 3-20 huruf kecil/angka/_' : '') && ok;
+
+        // Validasi domain (dari dropdown)
+    const allowedDomains = [
+      'pterocloud.my.id',
+      'pteroq.biz.id',
+      'smasnug.web.id',
+      'surnxuesk.biz.id',
+      'pteroqdactyl.my.id',
+      'keselekbijiwowo.web.id',
+      'rzhosts.my.id',
+      'pteroq.xyz',
+      'duckdns.top',
+      'sano.biz.id'
+    ];
+    ok = setAuthError('vpsDomain',
+      !domain ? 'Pilih domain dulu' :
+      !allowedDomains.includes(domain) ? 'Domain tidak valid' : ''
+    ) && ok;
+
+    // Validasi WA
+    ok = setAuthError('vpsWa', !/^0\d{9,13}$/.test(wa)
+      ? 'Format WA: 08xxxxxxxxxx' : '') && ok;
+
+    if (!ok) return;
+
+    // Susun pesan WhatsApp
+    const p = selectedVPSProduct;
+    let pesan =
+      `Halo *Toko PutzzPedia*! ⚡\n\n` +
+      `Saya mau order *VPS Digital Ocean*:\n\n` +
+      `📦 *Paket:* ${p.nama}\n` +
+      `👤 *Username VPS:* ${username}\n` +
+      `💾 *RAM VPS:* ${p.nama}\n` +
+      `🌐 *Request Domain:* ${domain}\n` +
+      `💰 *Harga:* ${formatHarga(p.harga)}\n` +
+      `📱 *WA Saya:* ${wa}\n`;
+
+    if (catatan) pesan += `📝 *Catatan:* ${catatan}\n`;
+    pesan += `\nMohon info cara pembayarannya. Terima kasih! 🙏`;
+
+    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(pesan)}`, '_blank');
+    closeOrderVPS();
+  });
+}
+
+// Tutup modal VPS kalau klik di luar box
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('modalOrderVPS');
+  if (modal && e.target === modal) {
+    closeOrderVPS();
+  }
+});
+
+/* =========================================================
+   MODAL ORDER PANEL
+   ========================================================= */
+let selectedPanelProduct = null;
+
+function openOrderPanel(product) {
+  selectedPanelProduct = product;
+  const modal = document.getElementById('modalOrderPanel');
+  if (!modal) return;
+
+  const infoEl = document.getElementById('modalOrderInfo');
+  const ramEl = document.getElementById('panelRam');
+  const hargaEl = document.getElementById('panelHarga');
+  const userEl = document.getElementById('panelUsername');
+  const waEl = document.getElementById('panelWa');
+  const catEl = document.getElementById('panelCatatan');
+
+  if (infoEl) {
+    infoEl.innerHTML = `
+      <p>📦 <strong>Paket:</strong> ${product.nama}</p>
+      <p>💾 <strong>RAM Panel:</strong> ${product.nama}</p>
+      <p>💰 <strong>Harga:</strong> <span class="harga-highlight">${formatHarga(product.harga)}</span></p>
+    `;
+  }
+  if (ramEl) ramEl.value = product.nama;
+  if (hargaEl) hargaEl.value = formatHarga(product.harga);
+
+  // Reset form
+  if (userEl) userEl.value = '';
+  if (waEl) waEl.value = '';
+  if (catEl) catEl.value = '';
+  document.querySelectorAll('#formOrderPanel .error').forEach(e => e.textContent = '');
+  document.querySelectorAll('#formOrderPanel input, #formOrderPanel textarea').forEach(el => el.classList.remove('invalid'));
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderPanel() {
+  const modal = document.getElementById('modalOrderPanel');
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+  selectedPanelProduct = null;
+}
+
+/* =========================================================
+   SUBMIT FORM ORDER PANEL
+   ========================================================= */
+const formOrderPanel = document.getElementById('formOrderPanel');
+if (formOrderPanel) {
+  formOrderPanel.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!selectedPanelProduct) return;
+
+    let ok = true;
+
+    const usernameEl = document.getElementById('panelUsername');
+    const waEl = document.getElementById('panelWa');
+    const catEl = document.getElementById('panelCatatan');
+    if (!usernameEl || !waEl) return;
+
+    const username = usernameEl.value.trim();
+    const wa = waEl.value.trim();
+    const catatan = catEl ? catEl.value.trim() : '';
+
+    // Validasi username panel
+    ok = setAuthError('panelUsername', !/^[a-z0-9_]{3,20}$/.test(username.toLowerCase())
+      ? 'Username 3-20 huruf kecil/angka/_' : '') && ok;
+
+    // Validasi WA
+    ok = setAuthError('panelWa', !/^0\d{9,13}$/.test(wa)
+      ? 'Format WA: 08xxxxxxxxxx' : '') && ok;
+
+    if (!ok) return;
+
+    // Susun pesan WhatsApp
+    const p = selectedPanelProduct;
+    let pesan =
+      `Halo *Toko PutzzPedia*! ⚡\n\n` +
+      `Saya mau order *Panel Pterodactyl*:\n\n` +
+      `📦 *Paket:* ${p.nama}\n` +
+      `👤 *Username Panel:* ${username}\n` +
+      `💾 *RAM Panel:* ${p.nama}\n` +
+      `💰 *Harga:* ${formatHarga(p.harga)}\n` +
+      `📱 *WA Saya:* ${wa}\n`;
+
+    if (catatan) pesan += `📝 *Catatan:* ${catatan}\n`;
+    pesan += `\nMohon info cara pembayarannya. Terima kasih! 🙏`;
+
+    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(pesan)}`, '_blank');
+    closeOrderPanel();
+  });
+}
+
+// Tutup modal kalau klik di luar box
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('modalOrderPanel');
+  if (modal && e.target === modal) {
+    closeOrderPanel();
+  }
+});
+
+// Tutup modal kalau tekan Esc
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeOrderPanel();
+    closeOrderVPS();
+  }
+});
+
+/* =========================================================
+   HEADER AUTH
+   ========================================================= */
+function renderAuthHeader() {
+  const slot = document.getElementById('authHeaderSlot');
+  if (!slot) return;
+  if (typeof renderSidebarAuth === 'function') renderSidebarAuth();
+  const user = getCurrentUser();
+  if (user) {
+    const initial = getUserInitial(user);
+    const name = getUserDisplayName(user);
+    slot.innerHTML = `
+      <div class="auth-user" onclick="showPage('dashboard')" title="Dashboard">
+        <div class="avatar">${initial}</div>
+        <span class="uname">${name}</span>
+      </div>
+    `;
+  } else {
+    slot.innerHTML = `
+      <button class="auth-btn" onclick="showPage('login')">🔐 Login</button>
+      <button class="auth-btn pink" onclick="showPage('register')">✨ Daftar</button>
+    `;
+  }
+}
+
+/* =========================================================
+   NAVIGASI
+   ========================================================= */
+function showPage(pageId) {
+  const landing = document.getElementById('pageLanding');
+  const login = document.getElementById('pageLogin');
+  const register = document.getElementById('pageRegister');
+  const dashboard = document.getElementById('pageDashboard');
+  if (landing) landing.style.display = 'none';
+  if (login) login.classList.remove('active');
+  if (register) register.classList.remove('active');
+  if (dashboard) dashboard.classList.remove('active');
+  if (pageId === 'dashboard' && !isLoggedIn()) pageId = 'login';
+  if (pageId === 'landing' && landing) {
+    landing.style.display = 'block';
+  } else if (pageId === 'login' && login) {
+    login.classList.add('active');
+    const f = document.getElementById('loginForm');
+    if (f) f.reset();
+    document.querySelectorAll('#pageLogin .error').forEach(e => e.textContent = '');
+    const la = document.getElementById('loginAlert');
+    if (la) la.classList.remove('show');
+  } else if (pageId === 'register' && register) {
+    register.classList.add('active');
+    const f = document.getElementById('registerForm');
+    if (f) f.reset();
+    document.querySelectorAll('#pageRegister .error').forEach(e => e.textContent = '');
+    const ra = document.getElementById('registerAlert');
+    if (ra) ra.classList.remove('show');
+  } else if (pageId === 'dashboard' && dashboard) {
+    const user = getCurrentUser();
+    if (user) {
+      const dn = document.getElementById('dashNama');
+      const de = document.getElementById('dashEmail');
+      const da = document.getElementById('dashAvatar');
+      if (dn) dn.textContent = getUserDisplayName(user);
+      if (de) de.textContent = user.email || '-';
+      if (da) da.textContent = getUserInitial(user);
+    }
+    dashboard.classList.add('active');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  renderAuthHeader();
+}
+function goHome() { showPage('landing'); }
+
+/* =========================================================
+   ALERT & ERROR
+   ========================================================= */
+function showAlert(elId, msg, type = 'error') {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'auth-alert show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 5000);
+}
+function setAuthError(id, msg) {
+  const input = document.getElementById(id);
+  const err = document.querySelector(`.error[data-for="${id}"]`);
+  if (input) input.classList.toggle('invalid', !!msg);
+  if (err) err.textContent = msg || '';
+  return !msg;
+}
+
+/* =========================================================
+   COPY TO CLIPBOARD
+   ========================================================= */
+function copyToClipboard(text, btn) {
+  const done = () => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ Tersalin!';
+    setTimeout(() => btn.innerHTML = orig, 2000);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { alert('Gagal copy: ' + text); }
+  document.body.removeChild(ta);
+}
+
+/* =========================================================
+   REGISTER (Firebase)
+   ========================================================= */
+const regForm = document.getElementById('registerForm');
+if (regForm) {
+  regForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    const namaEl = document.getElementById('regNama');
+    const emailEl = document.getElementById('regEmail');
+    const passEl = document.getElementById('regPass');
+    const pass2El = document.getElementById('regPass2');
+    if (!namaEl || !emailEl || !passEl || !pass2El) return;
+    const nama = namaEl.value.trim();
+    const email = emailEl.value.trim().toLowerCase();
+    const pass = passEl.value;
+    const pass2 = pass2El.value;
+    ok = setAuthError('regNama', nama.length < 3 ? 'Nama minimal 3 karakter' : '') && ok;
+    ok = setAuthError('regEmail', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'Email tidak valid' : '') && ok;
+    ok = setAuthError('regPass', pass.length < 6 ? 'Password minimal 6 karakter' : '') && ok;
+    ok = setAuthError('regPass2', pass !== pass2 ? 'Password tidak sama' : '') && ok;
+    if (!ok) return;
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Mendaftar...';
+    try {
+      const cred = await window.fbCreateUser(window.firebaseAuth, email, pass);
+      await window.fbUpdateProfile(cred.user, { displayName: nama });
+      showAlert('registerAlert', '✅ Akun berhasil dibuat! Mengalihkan...', 'success');
+      setTimeout(() => { regForm.reset(); showPage('dashboard'); }, 1000);
+    } catch (err) {
+      let msg = 'Gagal daftar';
+      if (err.code === 'auth/email-already-in-use') msg = 'Email sudah terdaftar';
+      else if (err.code === 'auth/invalid-email') msg = 'Email tidak valid';
+      else if (err.code === 'auth/weak-password') msg = 'Password terlalu lemah';
+      else if (err.code === 'auth/operation-not-allowed') msg = 'Email/Password belum diaktifkan di Firebase Console';
+      else if (err.message) msg = err.message;
+      btn.disabled = false;
+      btn.innerHTML = orig;
+      showAlert('registerAlert', '❌ ' + msg, 'error');
+    }
+  });
+}
+
+/* =========================================================
+   LOGIN (Firebase)
+   ========================================================= */
+const logForm = document.getElementById('loginForm');
+if (logForm) {
+  logForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    const emailEl = document.getElementById('loginEmail');
+    const passEl = document.getElementById('loginPass');
+    if (!emailEl || !passEl) return;
+    const email = emailEl.value.trim().toLowerCase();
+    const pass = passEl.value;
+    ok = setAuthError('loginEmail', !email ? 'Wajib diisi' : '') && ok;
+    ok = setAuthError('loginPass', !pass ? 'Wajib diisi' : '') && ok;
+    if (!ok) return;
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Masuk...';
+    try {
+      await window.fbSignIn(window.firebaseAuth, email, pass);
+      showAlert('loginAlert', '✅ Login berhasil! Mengalihkan...', 'success');
+      setTimeout(() => { logForm.reset(); showPage('dashboard'); }, 800);
+    } catch (err) {
+      let msg = 'Login gagal';
+      if (err.code === 'auth/user-not-found') msg = 'Akun tidak ditemukan';
+      else if (err.code === 'auth/wrong-password') msg = 'Password salah';
+      else if (err.code === 'auth/invalid-credential') msg = 'Email atau password salah';
+      else if (err.code === 'auth/invalid-email') msg = 'Email tidak valid';
+      else if (err.code === 'auth/too-many-requests') msg = 'Terlalu banyak percobaan, coba lagi nanti';
+      else if (err.message) msg = err.message;
+      btn.disabled = false;
+      btn.innerHTML = orig;
+      showAlert('loginAlert', '❌ ' + msg, 'error');
+    }
+  });
+}
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+async function handleLogout() {
+  if (!confirm('Yakin mau logout?')) return;
+  try {
+    await window.fbSignOut(window.firebaseAuth);
+    showPage('landing');
+  } catch (err) {
+    alert('Gagal logout: ' + err.message);
+  }
+}
+
+/* =========================================================
+   PANTAU LOGIN
+   ========================================================= */
+if (window.fbOnAuthStateChanged) {
+  window.fbOnAuthStateChanged(window.firebaseAuth, (user) => {
+    renderAuthHeader();
+    if (user) console.log('👤 Login:', user.email);
+    else console.log('👤 Belum login');
+  });
+}
+
+/* =========================================================
+   THEME SWITCHER
+   ========================================================= */
+const THEME_KEY = 'putzzpedia_theme';
+function setTheme(theme, btn) {
+  document.body.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-option').forEach(t => t.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    const target = document.querySelector(`.theme-option[data-theme="${theme}"]`);
+    if (target) target.classList.add('active');
+  }
+  try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+}
+function loadTheme() {
+  let theme = 'cyan';
+  try { theme = localStorage.getItem(THEME_KEY) || 'cyan'; } catch (e) {}
+  setTheme(theme);
+}
+function toggleThemePanel() {
+  const panel = document.getElementById('themePanel');
+  if (panel) panel.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('themePanel');
+  const btn = document.querySelector('.theme-btn');
+  if (!panel || !btn) return;
+  if (!panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+
+/* =========================================================
+   SIDEBAR MENU
+   ========================================================= */
+function openSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.add('open');
+  if (overlay) overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderSidebarAuth();
+}
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function goSection(id) {
+  goHome();
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 300);
+}
+function renderSidebarAuth() {
+  const slot = document.getElementById('sidebarFooter');
+  if (!slot) return;
+  const user = getCurrentUser();
+  if (user) {
+    const initial = getUserInitial(user);
+    const name = getUserDisplayName(user);
+    slot.innerHTML = `
+      <div class="auth-user" onclick="showPage('dashboard'); closeSidebar();">
+        <div class="avatar">${initial}</div>
+        <span class="uname">${name}</span>
+      </div>
+      <button class="dash-logout" style="width:100%;justify-content:center;" onclick="handleLogout(); closeSidebar();">🚪 𝕃𝕆𝔾𝕆𝕌𝕋</button>
+    `;
+  } else {
+    slot.innerHTML = `
+      <button class="auth-btn" onclick="showPage('login'); closeSidebar();">🔐 Login</button>
+      <button class="auth-btn pink" onclick="showPage('register'); closeSidebar();">✨ Daftar</button>
+    `;
+  }
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeSidebar();
+});
+
+/* =========================================================
+   INIT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 DOM siap, render produk...');
+  loadTheme();
+  renderProduk();
+  showPage('landing');
+  renderAuthHeader();
+  setTimeout(() => {
+    startTypingEffect();
+    startFloatingParticles();
+    startScrollReveal();
+  }, 1000);
+  startMatrixRain();
+});
+
+/* =========================================================
+   EKSPOS KE WINDOW
+   ========================================================= */
+window.showPage = showPage;
+window.goHome = goHome;
+window.handleLogout = handleLogout;
+window.copyToClipboard = copyToClipboard;
+window.orderProduk = orderProduk;
+window.setTheme = setTheme;
+window.toggleThemePanel = toggleThemePanel;
+window.openSidebar = openSidebar;
+window.closeSidebar = closeSidebar;
+window.goSection = goSection;
+window.renderSidebarAuth = renderSidebarAuth;
+window.openOrderPanel = openOrderPanel;
+window.closeOrderPanel = closeOrderPanel;
+window.openOrderVPS = openOrderVPS;
+window.closeOrderVPS = closeOrderVPS;
+</script>
+
+</body>
+</html>
